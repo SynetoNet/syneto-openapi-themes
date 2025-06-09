@@ -1,0 +1,81 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "syneto-openapi-themes"
+version = "0.1.0"
+description = "Syneto-branded themes and utilities for OpenAPI documentation tools"
+authors = ["Syneto <dev@syneto.net>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/syneto/syneto-openapi-themes"
+repository = "https://github.com/syneto/syneto-openapi-themes"
+documentation = "https://github.com/syneto/syneto-openapi-themes"
+keywords = ["openapi", "fastapi", "rapidoc", "swagger", "redoc", "syneto", "themes"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Documentation",
+    "Framework :: FastAPI",
+]
+packages = [{include = "syneto_openapi_themes", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+openapipages = "^0.1.2"
+fastapi = {version = "^0.100.0", optional = true}
+jinja2 = {version = "^3.1.0", optional = true}
+
+[tool.poetry.extras]
+fastapi = ["fastapi"]
+templates = ["jinja2"]
+all = ["fastapi", "jinja2"]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.0.0"
+pytest-asyncio = "^0.21.0"
+black = "^23.0.0"
+ruff = "^0.1.0"
+mypy = "^1.0.0"
+uvicorn = "^0.20.0"
+
+[tool.black]
+line-length = 120
+target-version = ['py39']
+
+[tool.ruff]
+line-length = 120
+target-version = "py39"
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
