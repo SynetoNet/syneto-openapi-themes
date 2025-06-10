@@ -251,7 +251,7 @@ class TestErrorHandling:
         # Check that state is consistent
         assert syneto_openapi_themes.__version__ == initial_version
         new_config = syneto_openapi_themes.get_default_brand_config()
-        assert type(config) == type(new_config)
+        assert type(config) is type(new_config)
 
     def test_import_error_resilience(self):
         """Test resilience to import errors."""

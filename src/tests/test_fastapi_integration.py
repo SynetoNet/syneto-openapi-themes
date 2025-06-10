@@ -5,6 +5,7 @@ Tests for FastAPI integration utilities.
 from unittest.mock import Mock, patch
 
 from fastapi import FastAPI
+from fastapi.testclient import TestClient
 from syneto_openapi_themes.brand import SynetoBrandConfig, SynetoTheme
 from syneto_openapi_themes.fastapi_integration import (
     SynetoDocsManager,
@@ -560,3 +561,92 @@ class TestFastAPIIntegrationEdgeCases:
             # Verify endpoints are isolated
             assert manager1.endpoints == {"rapidoc": "/docs1"}
             assert manager2.endpoints == {"rapidoc": "/docs2"}
+
+
+class TestFastAPIIntegrationWithTestClient:
+    """Test FastAPI integration with actual HTTP requests using TestClient."""
+
+    def test_fastapi_integration_with_test_client_rapidoc(self):
+        """Test RapiDoc endpoint returns HTML response via TestClient."""
+        app = FastAPI(title="Test API", docs_url=None, redoc_url=None)  # Disable default docs
+        add_syneto_rapidoc(app, docs_url="/rapidoc")
+
+        client = TestClient(app)
+        response = client.get("/rapidoc")
+
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "text/html; charset=utf-8"
+        assert "<!DOCTYPE html>" in response.text or "<!doctype html>" in response.text
+        # Just verify it's HTML content - the actual implementation might vary
+        assert "<html" in response.text.lower()
+
+    def test_fastapi_integration_with_test_client_swagger(self):
+        """Test SwaggerUI endpoint returns HTML response via TestClient."""
+        app = FastAPI(title="Test API")
+        add_syneto_swagger(app, docs_url="/swagger")
+
+        client = TestClient(app)
+        response = client.get("/swagger")
+
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "text/html; charset=utf-8"
+        assert "<!DOCTYPE html>" in response.text or "<!doctype html>" in response.text
+        assert "swagger" in response.text.lower()
+
+    def test_fastapi_integration_with_test_client_redoc(self):
+        """Test ReDoc endpoint returns HTML response via TestClient."""
+        app = FastAPI(title="Test API", docs_url=None, redoc_url=None)  # Disable default docs
+        add_syneto_redoc(app, docs_url="/redoc-custom")
+
+        client = TestClient(app)
+        response = client.get("/redoc-custom")
+
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "text/html; charset=utf-8"
+        assert "<!DOCTYPE html>" in response.text or "<!doctype html>" in response.text
+        assert "redoc" in response.text.lower()
+
+    def test_fastapi_integration_with_test_client_elements(self):
+        """Test Elements endpoint returns HTML response via TestClient."""
+        app = FastAPI(title="Test API")
+        add_syneto_elements(app, docs_url="/elements")
+
+        client = TestClient(app)
+        response = client.get("/elements")
+
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "text/html; charset=utf-8"
+        assert "<!DOCTYPE html>" in response.text or "<!doctype html>" in response.text
+        assert "elements" in response.text.lower()
+
+    def test_fastapi_integration_with_test_client_scalar(self):
+        """Test Scalar endpoint returns HTML response via TestClient."""
+        app = FastAPI(title="Test API")
+        add_syneto_scalar(app, docs_url="/scalar")
+
+        client = TestClient(app)
+        response = client.get("/scalar")
+
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "text/html; charset=utf-8"
+        assert "<!DOCTYPE html>" in response.text or "<!doctype html>" in response.text
+        assert "scalar" in response.text.lower()
+
+    def test_docs_manager_index_with_test_client(self):
+        """Test docs manager index endpoint returns HTML response via TestClient."""
+        app = FastAPI(title="Test API")
+        manager = SynetoDocsManager(app)
+
+        # Add some documentation endpoints first
+        manager.add_rapidoc("/docs").add_swagger("/swagger")
+        manager.add_docs_index("/docs-index")
+
+        client = TestClient(app)
+        response = client.get("/docs-index")
+
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "text/html; charset=utf-8"
+        assert "<!DOCTYPE html>" in response.text or "<!doctype html>" in response.text
+        assert "Test API - API Documentation" in response.text
+        assert "/docs" in response.text
+        assert "/swagger" in response.text

@@ -46,7 +46,7 @@ jobs:
 
     - name: Run tests with pytest
       run: |
-        poetry run python -m pytest tests/ -v --cov=syneto_openapi_themes --cov-report=xml --cov-report=term-missing --junitxml=junit.xml -o junit_family=legacy --cov-fail-under=85
+        cd src && poetry run python -m pytest tests/ -v --cov=syneto_openapi_themes --cov-report=xml --cov-report=term-missing --junitxml=junit.xml -o junit_family=legacy --cov-fail-under=85
 
     - name: Upload coverage to Codecov
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'

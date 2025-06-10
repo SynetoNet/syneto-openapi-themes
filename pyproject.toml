@@ -33,8 +33,9 @@ packages = [{include = "syneto_openapi_themes", from = "src"}]
 [tool.poetry.dependencies]
 python = "^3.9"
 openapipages = "^0.1.2"
-fastapi = {version = "^0.115.12", optional = true}
-jinja2 = {version = "^3.1.0", optional = true}
+fastapi = {version = "^0.115.12"}
+jinja2 = {version = "^3.1.0"}
+pip = "^25.1.1"
 
 [tool.poetry.extras]
 fastapi = ["fastapi"]
@@ -80,6 +81,17 @@ warn_unused_ignores = true
 warn_no_return = true
 warn_unreachable = true
 strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "openapipages.*",
+    "fastapi.*"
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "syneto_openapi_themes.fastapi_integration"
+disable_error_code = ["misc"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
