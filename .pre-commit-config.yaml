@@ -1,0 +1,11 @@
+repos:
+  - repo: local
+    hooks:
+      - id: quality-check
+        name: Run quality checks
+        entry: make quality
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+        verbose: true 

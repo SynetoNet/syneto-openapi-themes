@@ -53,6 +53,7 @@ safety = "^2.3.0"
 bandit = "^1.7.0"
 markdown = "^3.8"
 twine = "^6.1.0"
+pre-commit = "^4.2.0"
 
 [tool.black]
 line-length = 120
