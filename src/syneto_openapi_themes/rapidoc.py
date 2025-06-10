@@ -2,28 +2,30 @@
 Syneto-branded RapiDoc implementation.
 """
 
-from typing import Optional, Dict, Any, Union
+from typing import Any, Optional
+
 from openapipages import RapiDoc
+
 from .brand import SynetoBrandConfig, get_default_brand_config
 
 
 class SynetoRapiDoc(RapiDoc):
     """
     Syneto-branded RapiDoc documentation generator.
-    
+
     Extends OpenAPIPages RapiDoc with Syneto theming and branding.
     """
-    
+
     def __init__(
         self,
         openapi_url: str = "/openapi.json",
         title: str = "API Documentation",
         brand_config: Optional[SynetoBrandConfig] = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         """
         Initialize SynetoRapiDoc.
-        
+
         Args:
             openapi_url: URL to the OpenAPI JSON schema
             title: Title for the documentation page
@@ -31,9 +33,9 @@ class SynetoRapiDoc(RapiDoc):
             **kwargs: Additional RapiDoc configuration options
         """
         self.brand_config = brand_config or get_default_brand_config()
-        
-        # Apply Syneto defaults
-        syneto_defaults = {
+
+        # Store RapiDoc-specific configuration for use in rendering
+        self.rapidoc_config = {
             "theme": self.brand_config.theme.value,
             "bg_color": self.brand_config.background_color,
             "text_color": self.brand_config.text_color,
@@ -64,40 +66,45 @@ class SynetoRapiDoc(RapiDoc):
             "goto_path": "",
             "fill_request_fields_with_example": "true",
             "persist_auth": "false",
+            **kwargs,
         }
-        
-        # Merge with user-provided kwargs (user values take precedence)
-        final_config = {**syneto_defaults, **kwargs}
-        
-        super().__init__(
-            openapi_url=openapi_url,
-            title=title,
-            **final_config
-        )
-    
+
+        # Extract only valid parameters for the parent constructor
+        valid_parent_params = {
+            "title": title,
+            "openapi_url": openapi_url,
+            "js_url": kwargs.get("js_url", "https://unpkg.com/rapidoc/dist/rapidoc-min.js"),
+            "head_js_urls": kwargs.get("head_js_urls", []),
+            "tail_js_urls": kwargs.get("tail_js_urls", []),
+            "head_css_urls": kwargs.get("head_css_urls", []),
+            "favicon_url": kwargs.get("favicon_url", self.brand_config.favicon_url),
+        }
+
+        super().__init__(**valid_parent_params)
+
     def render(self, **kwargs: Any) -> str:
         """
         Render the Syneto-branded RapiDoc HTML.
-        
+
         Args:
             **kwargs: Additional template variables
-            
+
         Returns:
             Complete HTML string for the documentation page
         """
         # Get base HTML from OpenAPIPages
         base_html = super().render(**kwargs)
-        
+
         # Inject Syneto customizations
         return self._inject_syneto_customizations(base_html)
-    
+
     def _inject_syneto_customizations(self, html: str) -> str:
         """
         Inject Syneto-specific customizations into the HTML.
-        
+
         Args:
             html: Base HTML from OpenAPIPages
-            
+
         Returns:
             HTML with Syneto customizations
         """
@@ -106,7 +113,7 @@ class SynetoRapiDoc(RapiDoc):
         <style>
         {self.brand_config.to_css_variables()}
         {self.brand_config.get_loading_css()}
-        
+
         /* Syneto-specific RapiDoc customizations */
         rapi-doc {{
             --green: {self.brand_config.primary_color};
@@ -114,31 +121,31 @@ class SynetoRapiDoc(RapiDoc):
             --orange: {self.brand_config.primary_color};
             --red: var(--syneto-accent-red, #f01932);
         }}
-        
+
         /* Custom scrollbar styling */
         rapi-doc::-webkit-scrollbar {{
             width: 8px;
         }}
-        
+
         rapi-doc::-webkit-scrollbar-track {{
             background: {self.brand_config.nav_bg_color};
         }}
-        
+
         rapi-doc::-webkit-scrollbar-thumb {{
             background: {self.brand_config.primary_color};
             border-radius: 4px;
         }}
-        
+
         rapi-doc::-webkit-scrollbar-thumb:hover {{
             background: {self.brand_config.nav_accent_color};
         }}
-        
+
         /* Loading state styling */
         .syneto-rapidoc-container {{
             position: relative;
             min-height: 100vh;
         }}
-        
+
         .syneto-rapidoc-loading {{
             position: absolute;
             top: 0;
@@ -148,7 +155,7 @@ class SynetoRapiDoc(RapiDoc):
             z-index: 9999;
             background: {self.brand_config.background_color};
         }}
-        
+
         /* Error state styling */
         .syneto-rapidoc-error {{
             padding: 2rem;
@@ -159,7 +166,7 @@ class SynetoRapiDoc(RapiDoc):
         }}
         </style>
         """
-        
+
         # Add custom JavaScript for enhanced functionality
         custom_scripts = """
         <script>
@@ -167,14 +174,14 @@ class SynetoRapiDoc(RapiDoc):
             // Enhanced loading and error handling
             const rapidocElement = document.querySelector('rapi-doc');
             const container = document.querySelector('.syneto-rapidoc-container');
-            
+
             if (rapidocElement && container) {
                 // Show loading state
                 const loadingDiv = document.createElement('div');
                 loadingDiv.className = 'syneto-rapidoc-loading syneto-loading';
                 loadingDiv.textContent = 'Loading API Documentation...';
                 container.appendChild(loadingDiv);
-                
+
                 // Handle load completion
                 rapidocElement.addEventListener('spec-loaded', function() {
                     setTimeout(() => {
@@ -183,7 +190,7 @@ class SynetoRapiDoc(RapiDoc):
                         }
                     }, 500);
                 });
-                
+
                 // Handle load errors
                 rapidocElement.addEventListener('spec-load-error', function(e) {
                     if (loadingDiv.parentNode) {
@@ -197,10 +204,10 @@ class SynetoRapiDoc(RapiDoc):
                         `;
                     }
                 });
-                
+
                 // Set a timeout for loading
                 setTimeout(() => {
-                    if (loadingDiv.parentNode) {
+                    if (loadingDiv.parentNode && loadingDiv.textContent.includes('Loading')) {
                         loadingDiv.innerHTML = `
                             <div class="syneto-error">
                                 <h3>Loading Timeout</h3>
@@ -209,71 +216,73 @@ class SynetoRapiDoc(RapiDoc):
                             </div>
                         `;
                     }
-                }, 30000); // 30 second timeout
-            }
-            
-            // Add authentication helpers if needed
-            if (window.location.hash.includes('auth')) {
-                // Handle authentication state
-                console.log('Syneto RapiDoc: Authentication mode detected');
+                }, 10000);
             }
         })();
         </script>
         """
-        
-        # Inject custom CSS and JS before closing head tag
-        if "</head>" in html:
-            html = html.replace("</head>", f"{custom_styles}</head>")
-        
-        # Wrap rapi-doc element in container and inject scripts before closing body
-        if "<rapi-doc" in html and "</body>" in html:
-            html = html.replace("<rapi-doc", '<div class="syneto-rapidoc-container"><rapi-doc')
-            html = html.replace("</rapi-doc>", "</rapi-doc></div>")
+
+        # Inject styles and scripts into the HTML
+        if "<head>" in html:
+            html = html.replace("<head>", f"<head>{custom_styles}")
+        else:
+            html = f"{custom_styles}{html}"
+
+        if "</body>" in html:
             html = html.replace("</body>", f"{custom_scripts}</body>")
-        
-        # Add favicon if specified
-        if self.brand_config.favicon_url and "<head>" in html:
-            favicon_link = f'<link rel="icon" type="image/x-icon" href="{self.brand_config.favicon_url}">'
-            html = html.replace("<head>", f"<head>{favicon_link}")
-        
+        else:
+            html = f"{html}{custom_scripts}"
+
         return html
-    
-    def get_authentication_config(self) -> Dict[str, Any]:
+
+    def get_authentication_config(self) -> dict[str, Any]:
         """
-        Get authentication configuration for the documentation.
-        
+        Get authentication configuration for RapiDoc.
+
         Returns:
             Dictionary with authentication settings
         """
         return {
-            "allow_authentication": "true",
-            "persist_auth": "false",
+            "allow_authentication": True,
+            "persist_auth": False,
             "api_key_name": "X-API-Key",
             "api_key_location": "header",
+            "jwt_header_name": "Authorization",
+            "jwt_token_prefix": "Bearer ",
         }
-    
+
     def with_jwt_auth(self, jwt_url: str = "/auth/token") -> "SynetoRapiDoc":
         """
-        Configure RapiDoc for JWT authentication.
-        
+        Configure JWT authentication.
+
         Args:
             jwt_url: URL for JWT token endpoint
-            
+
         Returns:
             Self for method chaining
         """
-        # This would be implemented based on specific JWT requirements
+        self.rapidoc_config.update(
+            {
+                "allow_authentication": "true",
+                "persist_auth": "true",
+            }
+        )
         return self
-    
+
     def with_api_key_auth(self, api_key_name: str = "X-API-Key") -> "SynetoRapiDoc":
         """
-        Configure RapiDoc for API key authentication.
-        
+        Configure API key authentication.
+
         Args:
             api_key_name: Name of the API key header
-            
+
         Returns:
             Self for method chaining
         """
-        # This would be implemented based on specific API key requirements
-        return self 
+        self.rapidoc_config.update(
+            {
+                "allow_authentication": "true",
+                "api_key_name": api_key_name,
+            }
+        )
+        return self

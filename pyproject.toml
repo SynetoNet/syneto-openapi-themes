@@ -33,7 +33,7 @@ packages = [{include = "syneto_openapi_themes", from = "src"}]
 [tool.poetry.dependencies]
 python = "^3.9"
 openapipages = "^0.1.2"
-fastapi = {version = "^0.100.0", optional = true}
+fastapi = {version = "^0.115.12", optional = true}
 jinja2 = {version = "^3.1.0", optional = true}
 
 [tool.poetry.extras]
@@ -44,10 +44,15 @@ all = ["fastapi", "jinja2"]
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.0.0"
 pytest-asyncio = "^0.21.0"
-black = "^23.0.0"
+pytest-cov = "^4.1.0"
+black = "^24.3.0"
 ruff = "^0.1.0"
 mypy = "^1.0.0"
 uvicorn = "^0.20.0"
+safety = "^2.3.0"
+bandit = "^1.7.0"
+markdown = "^3.8"
+twine = "^6.1.0"
 
 [tool.black]
 line-length = 120
@@ -56,6 +61,8 @@ target-version = ['py39']
 [tool.ruff]
 line-length = 120
 target-version = "py39"
+
+[tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP"]
 
 [tool.mypy]

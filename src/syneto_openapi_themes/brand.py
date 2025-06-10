@@ -3,29 +3,29 @@ Syneto brand configuration and theming utilities.
 """
 
 from dataclasses import dataclass
-from typing import Optional, Dict, Any
 from enum import Enum
+from typing import Optional
 
 
 class SynetoColors:
     """Official Syneto color palette."""
-    
+
     # Primary colors
     PRIMARY_MAGENTA = "#ad0f6c"
     PRIMARY_DARK = "#07080d"
     PRIMARY_LIGHT = "#fcfdfe"
-    
+
     # Secondary colors
     SECONDARY_DARK = "#0f141f"
     SECONDARY_MEDIUM = "#161c2d"
     SECONDARY_LIGHT = "#c4c6ca"
-    
+
     # Accent colors
     ACCENT_RED = "#f01932"
     ACCENT_BLUE = "#1e3a8a"
     ACCENT_GREEN = "#059669"
     ACCENT_YELLOW = "#d97706"
-    
+
     # Neutral colors
     NEUTRAL_100 = "#f8fafc"
     NEUTRAL_200 = "#e2e8f0"
@@ -40,6 +40,7 @@ class SynetoColors:
 
 class SynetoTheme(Enum):
     """Available Syneto theme variants."""
+
     DARK = "dark"
     LIGHT = "light"
     AUTO = "auto"
@@ -48,18 +49,18 @@ class SynetoTheme(Enum):
 @dataclass
 class SynetoBrandConfig:
     """Configuration for Syneto branding."""
-    
+
     # Logo and branding
     logo_url: str = "/static/syneto-logo.svg"
     favicon_url: str = "/static/favicon.ico"
     company_name: str = "Syneto"
-    
+
     # Theme configuration
     theme: SynetoTheme = SynetoTheme.DARK
     primary_color: str = SynetoColors.PRIMARY_MAGENTA
     background_color: str = SynetoColors.PRIMARY_DARK
     text_color: str = SynetoColors.PRIMARY_LIGHT
-    
+
     # Navigation colors
     nav_bg_color: str = SynetoColors.SECONDARY_DARK
     nav_text_color: str = SynetoColors.SECONDARY_LIGHT
@@ -67,26 +68,26 @@ class SynetoBrandConfig:
     nav_hover_text_color: str = SynetoColors.PRIMARY_LIGHT
     nav_accent_color: str = SynetoColors.PRIMARY_MAGENTA
     nav_accent_text_color: str = SynetoColors.PRIMARY_LIGHT
-    
+
     # Header colors
     header_color: str = SynetoColors.SECONDARY_MEDIUM
-    
+
     # Typography
     regular_font: str = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
     mono_font: str = "'JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', monospace"
-    
+
     # Custom CSS and JS
-    custom_css_urls: list[str] = None
-    custom_js_urls: list[str] = None
-    
+    custom_css_urls: Optional[list[str]] = None
+    custom_js_urls: Optional[list[str]] = None
+
     def __post_init__(self) -> None:
         """Initialize default values for mutable fields."""
         if self.custom_css_urls is None:
             self.custom_css_urls = []
         if self.custom_js_urls is None:
             self.custom_js_urls = []
-    
-    def to_rapidoc_attributes(self) -> Dict[str, str]:
+
+    def to_rapidoc_attributes(self) -> dict[str, str]:
         """Convert brand config to RapiDoc HTML attributes."""
         return {
             "theme": self.theme.value,
@@ -104,7 +105,7 @@ class SynetoBrandConfig:
             "mono-font": self.mono_font,
             "logo": self.logo_url,
         }
-    
+
     def to_css_variables(self) -> str:
         """Convert brand config to CSS custom properties."""
         return f"""
@@ -123,7 +124,7 @@ class SynetoBrandConfig:
             --syneto-mono-font: {self.mono_font};
         }}
         """
-    
+
     def get_loading_css(self) -> str:
         """Get CSS for loading indicator with Syneto branding."""
         return f"""
@@ -137,7 +138,7 @@ class SynetoBrandConfig:
             background-color: {self.background_color};
             font-family: {self.regular_font};
         }}
-        
+
         .syneto-loading::after {{
             content: '';
             width: 20px;
@@ -148,12 +149,12 @@ class SynetoBrandConfig:
             border-radius: 50%;
             animation: syneto-spin 1s linear infinite;
         }}
-        
+
         @keyframes syneto-spin {{
             0% {{ transform: rotate(0deg); }}
             100% {{ transform: rotate(360deg); }}
         }}
-        
+
         .syneto-error {{
             text-align: center;
             padding: 2rem;
@@ -161,12 +162,12 @@ class SynetoBrandConfig:
             color: {self.text_color};
             font-family: {self.regular_font};
         }}
-        
+
         .syneto-error h3 {{
             color: #f01932;
             margin-bottom: 1rem;
         }}
-        
+
         .syneto-error p {{
             margin: 0.5rem 0;
         }}
@@ -189,4 +190,4 @@ def get_light_brand_config() -> SynetoBrandConfig:
         nav_hover_bg_color=SynetoColors.NEUTRAL_300,
         nav_hover_text_color=SynetoColors.NEUTRAL_900,
         header_color=SynetoColors.NEUTRAL_200,
-    ) 
+    )

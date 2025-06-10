@@ -1,0 +1,489 @@
+stages:
+  - test
+  - build
+  - deploy
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  POETRY_CACHE_DIR: "$CI_PROJECT_DIR/.cache/poetry"
+  POETRY_VENV_IN_PROJECT: "true"
+
+cache:
+  paths:
+    - .cache/pip
+    - .cache/poetry
+    - .venv/
+
+# Test stage
+test:
+  stage: test
+  image: python:3.11
+  before_script:
+    - pip install poetry
+    - poetry config virtualenvs.in-project true
+    - poetry install --with dev
+  script:
+    - poetry run pytest tests/ --cov=src/syneto_openapi_themes --cov-report=term --cov-report=html
+    - poetry run ruff check .
+    - poetry run mypy src/syneto_openapi_themes
+    - poetry run safety check
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+    paths:
+      - htmlcov/
+    expire_in: 1 week
+  coverage: '/TOTAL.*\s+(\d+%)$/'
+
+# Build documentation
+build-docs:
+  stage: build
+  image: python:3.11
+  before_script:
+    - pip install poetry
+    - poetry config virtualenvs.in-project true
+    - poetry install --with dev
+  script:
+    # Create docs directory structure
+    - mkdir -p docs
+    - mkdir -p docs/assets
+    - mkdir -p docs/examples
+    
+    # Copy documentation files from src/docs to docs/
+    - cp -r src/docs/* docs/
+    
+    # Generate API documentation using the library itself
+    - poetry run python -c "
+      import sys
+      sys.path.insert(0, 'src')
+      from syneto_openapi_themes import *
+      
+      # Generate example HTML files for each tool
+      brand_config = get_default_brand_config()
+      
+      # Create example OpenAPI spec
+      openapi_spec = {
+          'openapi': '3.0.0',
+          'info': {'title': 'Example API', 'version': '1.0.0'},
+          'paths': {
+              '/users': {
+                  'get': {
+                      'summary': 'List users',
+                      'responses': {'200': {'description': 'Success'}}
+                  }
+              }
+          }
+      }
+      
+      import json
+      with open('docs/examples/openapi.json', 'w') as f:
+          json.dump(openapi_spec, f, indent=2)
+      
+      # Generate example documentation pages
+      tools = {
+          'rapidoc': SynetoRapiDoc,
+          'swagger': SynetoSwaggerUI,
+          'redoc': SynetoReDoc,
+          'elements': SynetoElements,
+          'scalar': SynetoScalar
+      }
+      
+      for name, tool_class in tools.items():
+          tool = tool_class(
+              openapi_url='./openapi.json',
+              title=f'Example {name.title()} Documentation',
+              brand_config=brand_config
+          )
+          html = tool.render()
+          with open(f'docs/examples/{name}.html', 'w') as f:
+              f.write(html)
+      "
+    
+    # Create main index.html from index.md
+    - poetry run python -c "
+      import markdown
+      import re
+      
+      # Read the main index.md
+      with open('docs/index.md', 'r') as f:
+          content = f.read()
+      
+      # Convert markdown to HTML
+      md = markdown.Markdown(extensions=['codehilite', 'toc', 'tables'])
+      html_content = md.convert(content)
+      
+      # Create a complete HTML page
+      html_template = '''<!DOCTYPE html>
+      <html lang=\"en\">
+      <head>
+          <meta charset=\"UTF-8\">
+          <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+          <title>Syneto OpenAPI Themes Documentation</title>
+          <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css\">
+          <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css\">
+          <script src=\"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js\"></script>
+          <style>
+              body {
+                  box-sizing: border-box;
+                  min-width: 200px;
+                  max-width: 980px;
+                  margin: 0 auto;
+                  padding: 45px;
+                  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;
+              }
+              .markdown-body {
+                  box-sizing: border-box;
+                  min-width: 200px;
+                  max-width: 980px;
+                  margin: 0 auto;
+              }
+              .nav {
+                  background: #f6f8fa;
+                  padding: 1rem;
+                  margin-bottom: 2rem;
+                  border-radius: 6px;
+              }
+              .nav ul {
+                  list-style: none;
+                  padding: 0;
+                  margin: 0;
+                  display: flex;
+                  flex-wrap: wrap;
+                  gap: 1rem;
+              }
+              .nav a {
+                  text-decoration: none;
+                  color: #0969da;
+                  font-weight: 500;
+              }
+              .nav a:hover {
+                  text-decoration: underline;
+              }
+          </style>
+      </head>
+      <body>
+          <div class=\"markdown-body\">
+              <nav class=\"nav\">
+                  <ul>
+                      <li><a href=\"./getting-started.html\">Getting Started</a></li>
+                      <li><a href=\"./api-reference.html\">API Reference</a></li>
+                      <li><a href=\"./brand-configuration.html\">Brand Configuration</a></li>
+                      <li><a href=\"./documentation-tools.html\">Documentation Tools</a></li>
+                      <li><a href=\"./examples/\">Examples</a></li>
+                      <li><a href=\"../htmlcov/index.html\">Coverage Report</a></li>
+                  </ul>
+              </nav>
+              {content}
+          </div>
+          <script>hljs.highlightAll();</script>
+      </body>
+      </html>'''
+      
+      final_html = html_template.format(content=html_content)
+      
+      with open('docs/index.html', 'w') as f:
+          f.write(final_html)
+      "
+    
+    # Convert other markdown files to HTML
+    - poetry run python -c "
+      import markdown
+      import os
+      import glob
+      
+      md_files = ['getting-started.md', 'api-reference.md', 'brand-configuration.md', 'documentation-tools.md']
+      
+      html_template = '''<!DOCTYPE html>
+      <html lang=\"en\">
+      <head>
+          <meta charset=\"UTF-8\">
+          <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+          <title>{title} - Syneto OpenAPI Themes</title>
+          <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css\">
+          <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css\">
+          <script src=\"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js\"></script>
+          <style>
+              body {{
+                  box-sizing: border-box;
+                  min-width: 200px;
+                  max-width: 980px;
+                  margin: 0 auto;
+                  padding: 45px;
+                  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;
+              }}
+              .markdown-body {{
+                  box-sizing: border-box;
+                  min-width: 200px;
+                  max-width: 980px;
+                  margin: 0 auto;
+              }}
+              .nav {{
+                  background: #f6f8fa;
+                  padding: 1rem;
+                  margin-bottom: 2rem;
+                  border-radius: 6px;
+              }}
+              .nav ul {{
+                  list-style: none;
+                  padding: 0;
+                  margin: 0;
+                  display: flex;
+                  flex-wrap: wrap;
+                  gap: 1rem;
+              }}
+              .nav a {{
+                  text-decoration: none;
+                  color: #0969da;
+                  font-weight: 500;
+              }}
+              .nav a:hover {{
+                  text-decoration: underline;
+              }}
+              .back-link {{
+                  margin-bottom: 1rem;
+              }}
+              .back-link a {{
+                  color: #0969da;
+                  text-decoration: none;
+              }}
+              .back-link a:hover {{
+                  text-decoration: underline;
+              }}
+          </style>
+      </head>
+      <body>
+          <div class=\"markdown-body\">
+              <div class=\"back-link\">
+                  <a href=\"./index.html\">← Back to Documentation Home</a>
+              </div>
+              <nav class=\"nav\">
+                  <ul>
+                      <li><a href=\"./index.html\">Home</a></li>
+                      <li><a href=\"./getting-started.html\">Getting Started</a></li>
+                      <li><a href=\"./api-reference.html\">API Reference</a></li>
+                      <li><a href=\"./brand-configuration.html\">Brand Configuration</a></li>
+                      <li><a href=\"./documentation-tools.html\">Documentation Tools</a></li>
+                      <li><a href=\"./examples/\">Examples</a></li>
+                      <li><a href=\"../htmlcov/index.html\">Coverage Report</a></li>
+                  </ul>
+              </nav>
+              {content}
+          </div>
+          <script>hljs.highlightAll();</script>
+      </body>
+      </html>'''
+      
+      md = markdown.Markdown(extensions=['codehilite', 'toc', 'tables'])
+      
+      for md_file in md_files:
+          if os.path.exists(f'docs/{md_file}'):
+              with open(f'docs/{md_file}', 'r') as f:
+                  content = f.read()
+              
+              html_content = md.convert(content)
+              title = md_file.replace('.md', '').replace('-', ' ').title()
+              
+              final_html = html_template.format(title=title, content=html_content)
+              
+              html_file = md_file.replace('.md', '.html')
+              with open(f'docs/{html_file}', 'w') as f:
+                  f.write(final_html)
+      "
+    
+    # Create examples index
+    - poetry run python -c "
+      examples_html = '''<!DOCTYPE html>
+      <html lang=\"en\">
+      <head>
+          <meta charset=\"UTF-8\">
+          <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+          <title>Examples - Syneto OpenAPI Themes</title>
+          <style>
+              body {
+                  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;
+                  max-width: 980px;
+                  margin: 0 auto;
+                  padding: 2rem;
+                  line-height: 1.6;
+              }
+              .back-link {
+                  margin-bottom: 2rem;
+              }
+              .back-link a {
+                  color: #0969da;
+                  text-decoration: none;
+              }
+              .back-link a:hover {
+                  text-decoration: underline;
+              }
+              .examples-grid {
+                  display: grid;
+                  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                  gap: 2rem;
+                  margin-top: 2rem;
+              }
+              .example-card {
+                  border: 1px solid #d1d9e0;
+                  border-radius: 8px;
+                  padding: 1.5rem;
+                  background: #f6f8fa;
+              }
+              .example-card h3 {
+                  margin-top: 0;
+                  color: #1f2328;
+              }
+              .example-card p {
+                  color: #656d76;
+                  margin-bottom: 1rem;
+              }
+              .example-card a {
+                  display: inline-block;
+                  background: #0969da;
+                  color: white;
+                  padding: 0.5rem 1rem;
+                  text-decoration: none;
+                  border-radius: 6px;
+                  font-weight: 500;
+              }
+              .example-card a:hover {
+                  background: #0860ca;
+              }
+          </style>
+      </head>
+      <body>
+          <div class=\"back-link\">
+              <a href=\"../index.html\">← Back to Documentation Home</a>
+          </div>
+          <h1>Documentation Examples</h1>
+          <p>Live examples of each documentation tool with Syneto branding applied.</p>
+          
+          <div class=\"examples-grid\">
+              <div class=\"example-card\">
+                  <h3>RapiDoc</h3>
+                  <p>Interactive API documentation with try-it-out functionality and Syneto branding.</p>
+                  <a href=\"./rapidoc.html\" target=\"_blank\">View RapiDoc Example</a>
+              </div>
+              
+              <div class=\"example-card\">
+                  <h3>SwaggerUI</h3>
+                  <p>Classic Swagger interface with Syneto theming and OAuth2 support.</p>
+                  <a href=\"./swagger.html\" target=\"_blank\">View SwaggerUI Example</a>
+              </div>
+              
+              <div class=\"example-card\">
+                  <h3>ReDoc</h3>
+                  <p>Clean, responsive documentation with excellent navigation and Syneto styling.</p>
+                  <a href=\"./redoc.html\" target=\"_blank\">View ReDoc Example</a>
+              </div>
+              
+              <div class=\"example-card\">
+                  <h3>Elements</h3>
+                  <p>Modern, component-based documentation interface with Syneto branding.</p>
+                  <a href=\"./elements.html\" target=\"_blank\">View Elements Example</a>
+              </div>
+              
+              <div class=\"example-card\">
+                  <h3>Scalar</h3>
+                  <p>Beautiful, fast documentation with excellent UX and Syneto theming.</p>
+                  <a href=\"./scalar.html\" target=\"_blank\">View Scalar Example</a>
+              </div>
+          </div>
+          
+          <h2>OpenAPI Specification</h2>
+          <p>All examples use the same OpenAPI specification:</p>
+          <a href=\"./openapi.json\" target=\"_blank\">View OpenAPI JSON</a>
+      </body>
+      </html>'''
+      
+      with open('docs/examples/index.html', 'w') as f:
+          f.write(examples_html)
+      "
+    
+    # Copy coverage report if it exists
+    - if [ -d "htmlcov" ]; then cp -r htmlcov docs/; fi
+    
+    # Create a simple 404 page
+    - echo '<!DOCTYPE html><html><head><title>404 - Page Not Found</title></head><body><h1>404 - Page Not Found</h1><p><a href="/syneto-openapi-themes/">Return to Documentation Home</a></p></body></html>' > docs/404.html
+    
+  artifacts:
+    paths:
+      - docs/
+    expire_in: 1 week
+  only:
+    - main
+    - develop
+
+# Deploy to GitLab Pages
+pages:
+  stage: deploy
+  image: alpine:latest
+  dependencies:
+    - build-docs
+    - test
+  script:
+    - mkdir public
+    - cp -r docs/* public/
+    # Ensure coverage report is included
+    - if [ -d "htmlcov" ]; then cp -r htmlcov public/; fi
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
+
+# Security scanning
+security-scan:
+  stage: test
+  image: python:3.11
+  before_script:
+    - pip install poetry
+    - poetry config virtualenvs.in-project true
+    - poetry install --with dev
+  script:
+    - poetry run safety check --json --output safety-report.json || true
+    - poetry run bandit -r src/ -f json -o bandit-report.json || true
+  artifacts:
+    reports:
+      sast: bandit-report.json
+    paths:
+      - safety-report.json
+      - bandit-report.json
+    expire_in: 1 week
+  allow_failure: true
+
+# Build and test package
+build-package:
+  stage: build
+  image: python:3.11
+  before_script:
+    - pip install poetry
+    - poetry config virtualenvs.in-project true
+    - poetry install --with dev
+  script:
+    - poetry build
+    - poetry run twine check dist/*
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+  only:
+    - main
+    - tags
+
+# Publish to PyPI (only on tags)
+publish-pypi:
+  stage: deploy
+  image: python:3.11
+  dependencies:
+    - build-package
+    - test
+  before_script:
+    - pip install poetry
+  script:
+    - poetry config pypi-token.pypi $PYPI_TOKEN
+    - poetry publish
+  only:
+    - tags
+  when: manual 
