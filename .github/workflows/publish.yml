@@ -29,7 +29,8 @@ jobs:
       run: poetry run pip install --upgrade pip
 
     - name: Run tests
-      run: poetry run python -m pytest tests/ -v
+      run: |
+        cd src && poetry run python -m pytest tests/ -v
 
     - name: Run linting
       run: |
