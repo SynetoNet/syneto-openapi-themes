@@ -183,7 +183,6 @@ class TestFastAPIIntegrationFunctions:
             patch("syneto_openapi_themes.fastapi_integration.add_syneto_elements") as _mock_elements,
             patch("syneto_openapi_themes.fastapi_integration.add_syneto_scalar") as _mock_scalar,
         ):
-
             add_all_syneto_docs(app)
 
             # Verify all documentation tools were added
@@ -211,7 +210,6 @@ class TestFastAPIIntegrationFunctions:
             patch("syneto_openapi_themes.fastapi_integration.add_syneto_elements") as _mock_elements,
             patch("syneto_openapi_themes.fastapi_integration.add_syneto_scalar") as _mock_scalar,
         ):
-
             add_all_syneto_docs(
                 app,
                 openapi_url="/custom/openapi.json",
@@ -382,7 +380,6 @@ class TestSynetoDocsManager:
             patch.object(manager, "add_elements") as mock_elements,
             patch.object(manager, "add_scalar") as mock_scalar,
         ):
-
             # Configure mocks to return manager for chaining
             mock_rapidoc.return_value = manager
             mock_swagger.return_value = manager
@@ -485,7 +482,6 @@ class TestSynetoDocsManager:
             patch("syneto_openapi_themes.fastapi_integration.add_syneto_swagger"),
             patch("syneto_openapi_themes.fastapi_integration.add_syneto_redoc"),
         ):
-
             manager = SynetoDocsManager(app, brand_config=brand_config)
 
             # Chain multiple operations
