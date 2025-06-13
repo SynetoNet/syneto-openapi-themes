@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+
 from syneto_openapi_themes.brand import SynetoBrandConfig, SynetoTheme
 from syneto_openapi_themes.fastapi_integration import (
     SynetoDocsManager,

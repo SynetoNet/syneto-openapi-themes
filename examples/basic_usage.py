@@ -6,6 +6,7 @@ with a simple FastAPI application.
 """
 
 from fastapi import FastAPI
+
 from syneto_openapi_themes import (
     SynetoBrandConfig,
     SynetoDocsManager,
