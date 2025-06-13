@@ -62,7 +62,7 @@ ruff = ">=0.1,<0.12"
 mypy = "^1.0.0"
 
 # Security and quality tools
-safety = "^2.3.0"
+safety = ">=2.3,<4.0"
 bandit = "^1.7.0"
 pre-commit = "^4.2.0"
 
