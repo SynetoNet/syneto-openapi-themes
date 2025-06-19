@@ -66,6 +66,11 @@ class SynetoRapiDoc(RapiDoc):
             "goto_path": "",
             "fill_request_fields_with_example": "true",
             "persist_auth": "false",
+            # Disable JSON loading features at the top (requirement 2)
+            "allow_spec_url_load": "false",
+            "allow_spec_file_load": "false",
+            # Enable tag description in right pane when clicking on tags (requirement 1)
+            "on_nav_tag_click": "show-description",
             **kwargs,
         }
 
@@ -73,7 +78,7 @@ class SynetoRapiDoc(RapiDoc):
         valid_parent_params = {
             "title": title,
             "openapi_url": openapi_url,
-            "js_url": kwargs.get("js_url", "https://unpkg.com/rapidoc/dist/rapidoc-min.js"),
+            "js_url": kwargs.get("js_url", "https://unpkg.com/rapidoc@9.3.8/dist/rapidoc-min.js"),
             "head_js_urls": kwargs.get("head_js_urls", []),
             "tail_js_urls": kwargs.get("tail_js_urls", []),
             "head_css_urls": kwargs.get("head_css_urls", []),
@@ -114,12 +119,26 @@ class SynetoRapiDoc(RapiDoc):
         {self.brand_config.to_css_variables()}
         {self.brand_config.get_loading_css()}
 
-        /* Syneto-specific RapiDoc customizations */
+        /* Syneto-specific RapiDoc customizations using Color Chart v4.0 */
         rapi-doc {{
-            --green: {self.brand_config.primary_color};
-            --blue: {self.brand_config.primary_color};
-            --orange: {self.brand_config.primary_color};
-            --red: var(--syneto-accent-red, #f01932);
+            --green: #1bdc77;    /* Contrast Color - Green */
+            --blue: #006aff;     /* Info Color - Blue */
+            --orange: #ff8c00;   /* Caution Color - Orange */
+            --red: #f01932;      /* Danger Color - Red */
+            --yellow: #f7db00;   /* Warning Color - Yellow */
+            --purple: #724fff;   /* Accent Color - Purple */
+
+            /* Override default colors with Syneto brand colors */
+            --primary-color: {self.brand_config.primary_color};
+            --bg-color: {self.brand_config.background_color};
+            --text-color: {self.brand_config.text_color};
+            --nav-bg-color: {self.brand_config.nav_bg_color};
+            --nav-text-color: {self.brand_config.nav_text_color};
+            --nav-hover-bg-color: {self.brand_config.nav_hover_bg_color};
+            --nav-hover-text-color: {self.brand_config.nav_hover_text_color};
+            --nav-accent-color: {self.brand_config.nav_accent_color};
+            --border-color: #161c2d;
+            --light-border-color: #5c606c;
         }}
 
         /* Custom scrollbar styling */
@@ -164,11 +183,85 @@ class SynetoRapiDoc(RapiDoc):
             color: {self.brand_config.text_color};
             font-family: {self.brand_config.regular_font};
         }}
+
+        /* Enhanced tag navigation styling */
+        rapi-doc::part(section-navbar) {{
+            background: {self.brand_config.nav_bg_color};
+            border-right: 1px solid #161c2d;
+        }}
+
+        rapi-doc::part(section-navbar-item) {{
+            color: {self.brand_config.nav_text_color};
+            border-bottom: 1px solid #161c2d;
+        }}
+
+        rapi-doc::part(section-navbar-item):hover {{
+            background: {self.brand_config.nav_hover_bg_color};
+            color: {self.brand_config.nav_hover_text_color};
+        }}
+
+        rapi-doc::part(section-navbar-item-active) {{
+            background: {self.brand_config.nav_accent_color};
+            color: {self.brand_config.nav_accent_text_color};
+        }}
+
+        /* Right panel styling for tag descriptions */
+        rapi-doc::part(section-main-content) {{
+            background: {self.brand_config.background_color};
+        }}
+
+        /* Improve button styling with Syneto colors */
+        rapi-doc::part(btn-primary) {{
+            background: {self.brand_config.primary_color};
+            border-color: {self.brand_config.primary_color};
+        }}
+
+        rapi-doc::part(btn-primary):hover {{
+            background: #800541;
+            border-color: #800541;
+        }}
+
+        /* Status code styling with proper colors */
+        rapi-doc .status-code.success {{
+            background: #1bdc77;
+            color: #07080d;
+        }}
+
+        rapi-doc .status-code.error {{
+            background: #f01932;
+            color: #fcfdfe;
+        }}
+
+        rapi-doc .status-code.warning {{
+            background: #f7db00;
+            color: #07080d;
+        }}
+
+        rapi-doc .status-code.info {{
+            background: #006aff;
+            color: #fcfdfe;
+        }}
         </style>
         """
 
         # Add custom JavaScript for enhanced functionality
         custom_scripts = """
+        <script>
+        // Prevent CustomElementRegistry errors on page reload
+        (function() {
+            // Store original define method
+            const originalDefine = customElements.define;
+
+            // Override define to prevent duplicate registrations
+            customElements.define = function(name, constructor, options) {
+                if (!customElements.get(name)) {
+                    originalDefine.call(this, name, constructor, options);
+                } else {
+                    console.debug(`Custom element '${name}' already registered, skipping redefinition`);
+                }
+            };
+        })();
+        </script>
         <script>
         (function() {
             // Enhanced loading and error handling

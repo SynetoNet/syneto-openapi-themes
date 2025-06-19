@@ -8,34 +8,84 @@ from typing import Optional
 
 
 class SynetoColors:
-    """Official Syneto color palette."""
+    """Official Syneto color palette - Color Chart v4.0 (2024)."""
 
-    # Primary colors
-    PRIMARY_MAGENTA = "#ad0f6c"
-    PRIMARY_DARK = "#07080d"
-    PRIMARY_LIGHT = "#fcfdfe"
+    # Brand Color (Primary Magenta)
+    BRAND_PRIMARY = "#ad0f6c"
+    BRAND_LIGHT = "#ff53a8"
+    BRAND_LIGHTER = "#ff9dcd"
+    BRAND_DARK = "#800541"
 
-    # Secondary colors
-    SECONDARY_DARK = "#0f141f"
-    SECONDARY_MEDIUM = "#161c2d"
-    SECONDARY_LIGHT = "#c4c6ca"
+    # Contrast Color (Green)
+    CONTRAST_PRIMARY = "#1bdc77"
+    CONTRAST_LIGHT = "#49e392"
+    CONTRAST_LIGHTER = "#8deebb"
+    CONTRAST_DARK = "#0e6e3c"
 
-    # Accent colors
-    ACCENT_RED = "#f01932"
-    ACCENT_BLUE = "#1e3a8a"
-    ACCENT_GREEN = "#059669"
-    ACCENT_YELLOW = "#d97706"
+    # Accent Color (Purple/Blue)
+    ACCENT_PRIMARY = "#724fff"
+    ACCENT_LIGHT = "#9c84ff"
+    ACCENT_LIGHTER = "#c7b9ff"
+    ACCENT_DARK = "#392880"
 
-    # Neutral colors
-    NEUTRAL_100 = "#f8fafc"
-    NEUTRAL_200 = "#e2e8f0"
-    NEUTRAL_300 = "#cbd5e1"
-    NEUTRAL_400 = "#94a3b8"
-    NEUTRAL_500 = "#64748b"
-    NEUTRAL_600 = "#475569"
-    NEUTRAL_700 = "#334155"
-    NEUTRAL_800 = "#1e293b"
-    NEUTRAL_900 = "#0f172a"
+    # Info Color (Blue)
+    INFO_PRIMARY = "#006aff"
+    INFO_LIGHT = "#4d97ff"
+    INFO_LIGHTER = "#99c3ff"
+    INFO_DARK = "#003580"
+
+    # Warning Color (Yellow)
+    WARNING_PRIMARY = "#f7db00"
+    WARNING_LIGHT = "#f9e64d"
+    WARNING_LIGHTER = "#fcf199"
+    WARNING_DARK = "#7c6e00"
+
+    # Caution Color (Orange)
+    CAUTION_PRIMARY = "#ff8c00"
+    CAUTION_LIGHT = "#ffa333"
+    CAUTION_LIGHTER = "#ffba66"
+    CAUTION_DARK = "#cc7000"
+
+    # Warning Color (Red)
+    DANGER_PRIMARY = "#f01932"
+    DANGER_LIGHT = "#f55e70"
+    DANGER_LIGHTER = "#f9a3ad"
+    DANGER_DARK = "#780d19"
+
+    # Dark / Neutral Colors (for light on dark theme)
+    NEUTRAL_DARKEST = "#07080d"  # Background Color - darkest
+    NEUTRAL_DARKER = "#0f141f"  # Dark / Neutral Color - darker
+    NEUTRAL_DARK = "#161c2d"  # Dark / Neutral Color - dark
+    NEUTRAL_MEDIUM = "#5c606c"  # Dark / Neutral Color - medium
+    NEUTRAL_LIGHT = "#b9bbc0"  # Dark / Neutral Color - light
+
+    # Background Colors (light tints)
+    BG_LIGHTEST = "#fcfdfe"  # Background Color - lightest
+    BG_LIGHTER = "#f9fafe"  # Background Color - lighter
+    BG_LIGHT = "#f5f7fd"  # Background Color - light
+    BG_MEDIUM_LIGHT = "#c4c6ca"  # Background Color - medium light
+    BG_MEDIUM_DARK = "#7b7c7f"  # Background Color - medium dark
+
+    # Legacy color aliases for backwards compatibility
+    PRIMARY_MAGENTA = BRAND_PRIMARY
+    PRIMARY_DARK = NEUTRAL_DARKEST
+    PRIMARY_LIGHT = BG_LIGHTEST
+    SECONDARY_DARK = NEUTRAL_DARKER
+    SECONDARY_MEDIUM = NEUTRAL_DARK
+    SECONDARY_LIGHT = BG_MEDIUM_LIGHT
+    ACCENT_RED = DANGER_PRIMARY
+    ACCENT_BLUE = INFO_PRIMARY
+    ACCENT_GREEN = CONTRAST_PRIMARY
+    ACCENT_YELLOW = WARNING_PRIMARY
+    NEUTRAL_100 = BG_LIGHTEST
+    NEUTRAL_200 = BG_LIGHTER
+    NEUTRAL_300 = BG_LIGHT
+    NEUTRAL_400 = BG_MEDIUM_LIGHT
+    NEUTRAL_500 = BG_MEDIUM_DARK
+    NEUTRAL_600 = NEUTRAL_LIGHT
+    NEUTRAL_700 = NEUTRAL_MEDIUM
+    NEUTRAL_800 = NEUTRAL_DARK
+    NEUTRAL_900 = NEUTRAL_DARKEST
 
 
 class SynetoTheme(Enum):
@@ -55,22 +105,22 @@ class SynetoBrandConfig:
     favicon_url: str = "/static/favicon.ico"
     company_name: str = "Syneto"
 
-    # Theme configuration
+    # Theme configuration - using light on dark colors from Color Chart v4.0
     theme: SynetoTheme = SynetoTheme.DARK
-    primary_color: str = SynetoColors.PRIMARY_MAGENTA
-    background_color: str = SynetoColors.PRIMARY_DARK
-    text_color: str = SynetoColors.PRIMARY_LIGHT
+    primary_color: str = SynetoColors.BRAND_PRIMARY
+    background_color: str = SynetoColors.NEUTRAL_DARKEST
+    text_color: str = SynetoColors.BG_LIGHTEST
 
-    # Navigation colors
-    nav_bg_color: str = SynetoColors.SECONDARY_DARK
-    nav_text_color: str = SynetoColors.SECONDARY_LIGHT
-    nav_hover_bg_color: str = SynetoColors.SECONDARY_MEDIUM
-    nav_hover_text_color: str = SynetoColors.PRIMARY_LIGHT
-    nav_accent_color: str = SynetoColors.PRIMARY_MAGENTA
-    nav_accent_text_color: str = SynetoColors.PRIMARY_LIGHT
+    # Navigation colors - optimized for light on dark theme
+    nav_bg_color: str = SynetoColors.NEUTRAL_DARKER
+    nav_text_color: str = SynetoColors.NEUTRAL_LIGHT
+    nav_hover_bg_color: str = SynetoColors.NEUTRAL_DARK
+    nav_hover_text_color: str = SynetoColors.BG_LIGHTEST
+    nav_accent_color: str = SynetoColors.BRAND_PRIMARY
+    nav_accent_text_color: str = SynetoColors.BG_LIGHTEST
 
     # Header colors
-    header_color: str = SynetoColors.SECONDARY_MEDIUM
+    header_color: str = SynetoColors.NEUTRAL_DARK
 
     # Typography
     regular_font: str = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
@@ -183,11 +233,11 @@ def get_light_brand_config() -> SynetoBrandConfig:
     """Get a light theme Syneto brand configuration."""
     return SynetoBrandConfig(
         theme=SynetoTheme.LIGHT,
-        background_color=SynetoColors.NEUTRAL_100,
-        text_color=SynetoColors.NEUTRAL_900,
-        nav_bg_color=SynetoColors.NEUTRAL_200,
-        nav_text_color=SynetoColors.NEUTRAL_700,
-        nav_hover_bg_color=SynetoColors.NEUTRAL_300,
-        nav_hover_text_color=SynetoColors.NEUTRAL_900,
-        header_color=SynetoColors.NEUTRAL_200,
+        background_color=SynetoColors.BG_LIGHTEST,
+        text_color=SynetoColors.NEUTRAL_DARKEST,
+        nav_bg_color=SynetoColors.BG_LIGHTER,
+        nav_text_color=SynetoColors.NEUTRAL_MEDIUM,
+        nav_hover_bg_color=SynetoColors.BG_LIGHT,
+        nav_hover_text_color=SynetoColors.NEUTRAL_DARKEST,
+        header_color=SynetoColors.BG_LIGHTER,
     )

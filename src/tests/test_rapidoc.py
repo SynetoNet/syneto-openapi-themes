@@ -306,7 +306,7 @@ class TestSynetoRapiDocIntegration:
             result = rapidoc.render()
 
             # Verify light theme colors are used
-            assert SynetoColors.NEUTRAL_100 not in result  # This would be in light theme
+            assert SynetoColors.BG_LIGHTEST in result  # Light theme background
             assert brand_config.background_color in result
             assert brand_config.text_color in result
 
