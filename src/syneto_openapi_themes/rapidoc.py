@@ -121,8 +121,17 @@ class SynetoRapiDoc(RapiDoc):
         Returns:
             Complete HTML string for the documentation page
         """
-        # Get base HTML from OpenAPIPages
-        base_html = super().render(**kwargs)
+        # Use our own template with RapiDoc attributes instead of parent's fixed template
+        self.head_js_urls.insert(0, self.js_url)
+        html_template = self.get_html_template()
+        base_html = html_template.format(
+            title=self.title,
+            favicon_url=self.favicon_url,
+            openapi_url=self.openapi_url,
+            head_css_str=self.get_head_css_str(),
+            head_js_str=self.get_head_js_str(),
+            tail_js_str=self.get_tail_js_str(),
+        )
 
         # Inject Syneto customizations
         return self._inject_syneto_customizations(base_html)
@@ -146,7 +155,7 @@ class SynetoRapiDoc(RapiDoc):
         /* Syneto-specific RapiDoc customizations using Color Chart v4.0 */
         rapi-doc {{
             --green: #1bdc77;    /* Contrast Color - Green */
-            --blue: #006aff;     /* Info Color - Blue */
+            --blue: #ff53a8;     /* Syneto Brand Light - Better for links on dark background */
             --orange: #ff8c00;   /* Caution Color - Orange */
             --red: #f01932;      /* Danger Color - Red */
             --yellow: #f7db00;   /* Warning Color - Yellow */
@@ -262,8 +271,34 @@ class SynetoRapiDoc(RapiDoc):
         }}
 
         rapi-doc .status-code.info {{
-            background: #006aff;
+            background: #724fff;  /* Syneto Accent Primary - Purple instead of harsh blue */
             color: #fcfdfe;
+        }}
+
+        /* Link styling with Syneto brand colors */
+        rapi-doc a {{
+            color: #ff53a8 !important;  /* Syneto Brand Light */
+            text-decoration: none;
+        }}
+
+        rapi-doc a:hover {{
+            color: #ff9dcd !important;  /* Syneto Brand Lighter for hover */
+            text-decoration: underline;
+        }}
+
+        rapi-doc a:visited {{
+            color: #ff53a8 !important;  /* Keep same color for visited links */
+        }}
+
+        /* Schema links and references */
+        rapi-doc .m-markdown-small a,
+        rapi-doc .descr a {{
+            color: #ff53a8 !important;
+        }}
+
+        rapi-doc .m-markdown-small a:hover,
+        rapi-doc .descr a:hover {{
+            color: #ff9dcd !important;
         }}
         </style>
         """
@@ -416,7 +451,14 @@ class SynetoRapiDoc(RapiDoc):
         for key, value in self.rapidoc_config.items():
             # Convert Python dict keys to kebab-case HTML attributes
             attr_name = key.replace("_", "-")
-            rapidoc_attributes.append(f'{attr_name}="{value}"')
+
+            # Convert Python boolean values to lowercase strings for HTML/JavaScript
+            if isinstance(value, bool):
+                attr_value = str(value).lower()
+            else:
+                attr_value = str(value)
+
+            rapidoc_attributes.append(f'{attr_name}="{attr_value}"')
 
         attributes_str = " ".join(rapidoc_attributes)
 

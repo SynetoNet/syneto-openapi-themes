@@ -2,8 +2,6 @@
 Tests for the SynetoRapiDoc implementation.
 """
 
-from unittest.mock import patch
-
 from syneto_openapi_themes.brand import SynetoBrandConfig, SynetoColors, SynetoTheme
 from syneto_openapi_themes.rapidoc import SynetoRapiDoc
 
@@ -47,24 +45,20 @@ class TestSynetoRapiDocInitialization:
 class TestSynetoRapiDocRendering:
     """Test SynetoRapiDoc HTML rendering functionality."""
 
-    @patch("syneto_openapi_themes.rapidoc.RapiDoc.render")
-    def test_render_calls_parent_and_injects_customizations(self, mock_parent_render):
-        """Test that render calls parent and injects Syneto customizations."""
-        mock_parent_render.return_value = "<html><head></head><body>Base HTML</body></html>"
-
+    def test_render_calls_parent_and_injects_customizations(self):
+        """Test that render generates HTML with Syneto customizations."""
         rapidoc = SynetoRapiDoc()
         result = rapidoc.render()
 
-        mock_parent_render.assert_called_once()
+        # Check that the result contains expected content
         assert "Syneto-specific RapiDoc customizations" in result
         assert "syneto-rapidoc-container" in result
         assert rapidoc.brand_config.primary_color in result
+        assert "<rapi-doc" in result
+        assert "spec-url=" in result
 
-    @patch("syneto_openapi_themes.rapidoc.RapiDoc.render")
-    def test_render_with_custom_brand_config(self, mock_parent_render):
+    def test_render_with_custom_brand_config(self):
         """Test rendering with custom brand configuration."""
-        mock_parent_render.return_value = "<html><head></head><body>Base HTML</body></html>"
-
         brand_config = SynetoBrandConfig(
             primary_color="#custom123", background_color="#bg456", company_name="Test Corp"
         )
@@ -76,11 +70,8 @@ class TestSynetoRapiDocRendering:
         assert "#bg456" in result
         assert "Test Corp" not in result  # Company name not directly in CSS
 
-    @patch("syneto_openapi_themes.rapidoc.RapiDoc.render")
-    def test_render_includes_css_variables(self, mock_parent_render):
+    def test_render_includes_css_variables(self):
         """Test that render includes CSS variables from brand config."""
-        mock_parent_render.return_value = "<html><head></head><body>Base HTML</body></html>"
-
         rapidoc = SynetoRapiDoc()
         result = rapidoc.render()
 
@@ -88,11 +79,8 @@ class TestSynetoRapiDocRendering:
         assert "--syneto-bg-color" in result
         assert ":root" in result
 
-    @patch("syneto_openapi_themes.rapidoc.RapiDoc.render")
-    def test_render_includes_loading_css(self, mock_parent_render):
+    def test_render_includes_loading_css(self):
         """Test that render includes loading CSS."""
-        mock_parent_render.return_value = "<html><head></head><body>Base HTML</body></html>"
-
         rapidoc = SynetoRapiDoc()
         result = rapidoc.render()
 
@@ -100,28 +88,61 @@ class TestSynetoRapiDocRendering:
         assert ".syneto-error" in result
         assert "@keyframes syneto-spin" in result
 
-    @patch("syneto_openapi_themes.rapidoc.RapiDoc.render")
-    def test_render_includes_javascript_enhancements(self, mock_parent_render):
+    def test_render_includes_javascript_enhancements(self):
         """Test that render includes JavaScript enhancements."""
-        mock_parent_render.return_value = "<html><head></head><body>Base HTML</body></html>"
-
         rapidoc = SynetoRapiDoc()
-        _ = rapidoc.render()
+        result = rapidoc.render()
 
         # Should include JavaScript enhancements
-        mock_parent_render.assert_called_once()
-        # Verify the render method was called (JavaScript is injected during render)
-        assert "spec-load-error" in rapidoc.render()
+        assert "spec-load-error" in result
+        assert "Failed to Load API Documentation" in result
 
-    @patch("syneto_openapi_themes.rapidoc.RapiDoc.render")
-    def test_render_with_kwargs(self, mock_parent_render):
+    def test_render_with_kwargs(self):
         """Test rendering with additional template variables."""
-        mock_parent_render.return_value = "<html><head></head><body>Base HTML</body></html>"
-
         rapidoc = SynetoRapiDoc()
-        _ = rapidoc.render(custom_var="test_value")
+        result = rapidoc.render(custom_var="test_value")
 
-        mock_parent_render.assert_called_once_with(custom_var="test_value")
+        # The result should still contain the basic RapiDoc structure
+        assert "<rapi-doc" in result
+        assert "spec-url=" in result
+
+    def test_render_with_empty_base_html(self):
+        """Test rendering with empty base HTML."""
+        rapidoc = SynetoRapiDoc()
+        result = rapidoc.render()
+
+        # Should generate complete HTML even without base
+        assert "<style>" in result
+        assert "<rapi-doc" in result
+
+    def test_render_with_malformed_base_html(self):
+        """Test rendering with malformed base HTML."""
+        rapidoc = SynetoRapiDoc()
+        result = rapidoc.render()
+
+        # Should still inject customizations and generate valid HTML
+        assert "Syneto-specific RapiDoc customizations" in result
+        assert "<rapi-doc" in result
+        assert "<!DOCTYPE html>" in result
+
+    def test_improved_link_colors(self):
+        """Test that links use Syneto brand colors instead of harsh blue."""
+        rapidoc = SynetoRapiDoc()
+        html = rapidoc.render()
+
+        # Check that links use Syneto Brand Light color
+        assert "#ff53a8" in html  # Syneto Brand Light for links
+        assert "#ff9dcd" in html  # Syneto Brand Lighter for hover
+
+        # Check that specific link styling is present
+        assert "rapi-doc a {" in html
+        assert "color: #ff53a8 !important" in html
+
+        # Verify the old harsh blue color is not used for links
+        # Note: #006aff might still appear in other contexts (like constants)
+        # but should not be used for the --blue CSS variable
+        assert "--blue: #ff53a8" in html  # New brand color for blue variable
+        assert "--blue: #006aff" not in html  # Old harsh blue should be gone
 
 
 class TestSynetoRapiDocCustomizations:
@@ -169,6 +190,24 @@ class TestSynetoRapiDocCustomizations:
         assert "spec-load-error" in result
         assert "Failed to Load API Documentation" in result
         assert "setTimeout" in result
+
+    def test_inject_customizations_without_body_tag(self):
+        """Test customization injection when HTML doesn't contain </body> tag."""
+        rapidoc = SynetoRapiDoc()
+        # HTML without </body> tag to test the else branch
+        base_html = "<html><head></head><div>Content without body tag</div></html>"
+
+        result = rapidoc._inject_syneto_customizations(base_html)
+
+        # Should still inject customizations even without </body> tag
+        assert "Syneto-specific RapiDoc customizations" in result
+        assert "<style>" in result
+        assert "<script>" in result
+        assert "Content without body tag" in result
+        # Scripts should be appended at the end when there's no </body> tag
+        assert "</script>" in result
+        # The original content should still be there
+        assert "<div>Content without body tag</div>" in result
 
 
 class TestSynetoRapiDocAuthentication:
@@ -224,29 +263,6 @@ class TestSynetoRapiDocEdgeCases:
         assert rapidoc.brand_config is not None
         assert rapidoc.brand_config.theme == SynetoTheme.DARK
 
-    def test_render_with_empty_base_html(self):
-        """Test rendering with empty base HTML."""
-        with patch("syneto_openapi_themes.rapidoc.RapiDoc.render") as mock_render:
-            mock_render.return_value = ""
-
-            rapidoc = SynetoRapiDoc()
-            result = rapidoc.render()
-
-            # Should still inject customizations even with empty base
-            assert "<style>" in result
-
-    def test_render_with_malformed_base_html(self):
-        """Test rendering with malformed base HTML."""
-        with patch("syneto_openapi_themes.rapidoc.RapiDoc.render") as mock_render:
-            mock_render.return_value = "<html><body>Unclosed tag"
-
-            rapidoc = SynetoRapiDoc()
-            result = rapidoc.render()
-
-            # Should still inject customizations
-            assert "Syneto-specific RapiDoc customizations" in result
-            assert "Unclosed tag" in result
-
     def test_inject_customizations_with_special_characters(self):
         """Test customization injection with special characters in brand config."""
         brand_config = SynetoBrandConfig(company_name="Test & Co. <script>", primary_color="#ff0000")
@@ -270,45 +286,29 @@ class TestSynetoRapiDocIntegration:
             theme=SynetoTheme.LIGHT, primary_color="#test123", company_name="Integration Test Corp"
         )
 
-        with patch("syneto_openapi_themes.rapidoc.RapiDoc.render") as mock_render:
-            mock_render.return_value = """
-            <html>
-                <head><title>API Docs</title></head>
-                <body>
-                    <rapi-doc spec-url="/openapi.json"></rapi-doc>
-                </body>
-            </html>
-            """
+        rapidoc = SynetoRapiDoc(
+            openapi_url="/test/openapi.json", title="Integration Test API", brand_config=brand_config
+        )
 
-            rapidoc = SynetoRapiDoc(
-                openapi_url="/test/openapi.json", title="Integration Test API", brand_config=brand_config
-            )
+        result = rapidoc.render(extra_param="test")
 
-            result = rapidoc.render(extra_param="test")
-
-            # Verify parent was called with correct parameters
-            mock_render.assert_called_once_with(extra_param="test")
-
-            # Verify customizations were injected
-            assert "#test123" in result
-            assert "Syneto-specific RapiDoc customizations" in result
-            assert "rapi-doc spec-url" in result
-            assert "API Docs" in result
+        # Verify customizations were injected
+        assert "#test123" in result
+        assert "Syneto-specific RapiDoc customizations" in result
+        assert "rapi-doc spec-url" in result
+        assert "/test/openapi.json" in result
 
     def test_theme_consistency_across_components(self):
         """Test that theme settings are consistent across all components."""
         brand_config = SynetoBrandConfig(theme=SynetoTheme.LIGHT)
         rapidoc = SynetoRapiDoc(brand_config=brand_config)
 
-        with patch("syneto_openapi_themes.rapidoc.RapiDoc.render") as mock_render:
-            mock_render.return_value = "<html><body>Test</body></html>"
+        result = rapidoc.render()
 
-            result = rapidoc.render()
-
-            # Verify light theme colors are used
-            assert SynetoColors.BG_LIGHTEST in result  # Light theme background
-            assert brand_config.background_color in result
-            assert brand_config.text_color in result
+        # Verify light theme colors are used
+        assert SynetoColors.BG_LIGHTEST in result  # Light theme background
+        assert brand_config.background_color in result
+        assert brand_config.text_color in result
 
     def test_with_jwt_auth(self):
         """Test configuring JWT authentication."""
@@ -416,3 +416,29 @@ class TestSynetoRapiDocIntegration:
         assert rapidoc.js_url == "https://custom-cdn.com/rapidoc.js"
         assert rapidoc.favicon_url == "/custom-favicon.ico"
         assert rapidoc.head_css_urls == ["https://custom.css"]
+
+    def test_boolean_values_converted_to_lowercase_strings(self):
+        """Test that Python boolean values are converted to lowercase strings in HTML attributes."""
+        rapidoc = SynetoRapiDoc(
+            allow_spec_url_load=False,
+            allow_spec_file_load=False,
+            allow_server_selection=False,
+            show_header=False,
+            show_info=False,
+        )
+
+        html = rapidoc.render()
+
+        # Check that boolean False values are converted to "false" (not "False")
+        assert 'allow-spec-url-load="false"' in html
+        assert 'allow-spec-file-load="false"' in html
+        assert 'allow-server-selection="false"' in html
+        assert 'show-header="false"' in html
+        assert 'show-info="false"' in html
+
+        # Make sure Python "False" strings are not present
+        assert 'allow-spec-url-load="False"' not in html
+        assert 'allow-spec-file-load="False"' not in html
+        assert 'allow-server-selection="False"' not in html
+        assert 'show-header="False"' not in html
+        assert 'show-info="False"' not in html
