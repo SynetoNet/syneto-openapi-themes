@@ -48,7 +48,7 @@ all = ["fastapi"]
 
 [tool.poetry.group.dev.dependencies]
 # Testing framework and plugins
-pytest = "^7.0.0"
+pytest = ">=7,<9"
 pytest-asyncio = "^0.23.8"
 pytest-cov = "^4.1.0"
 httpx = "^0.28.1"  # Required for FastAPI TestClient in integration tests
@@ -75,7 +75,7 @@ twine = "^6.1.0"
 
 [tool.poetry.group.test.dependencies]
 # Test-specific dependencies that might be needed in CI
-pytest = "^7.0.0"
+pytest = ">=7,<9"
 pytest-asyncio = "^0.23.8"
 pytest-cov = "^4.1.0"
 httpx = "^0.28.1"
