@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "syneto-openapi-themes"
-version = "0.1.6"
+version = "0.1.7"
 description = "Syneto-branded themes and utilities for OpenAPI documentation tools"
 authors = ["Syneto <dev@syneto.net>"]
 license = "MIT"
