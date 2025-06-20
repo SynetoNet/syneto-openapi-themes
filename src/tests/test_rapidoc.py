@@ -347,3 +347,72 @@ class TestSynetoRapiDocIntegration:
         assert rapidoc.rapidoc_config["allow_authentication"] == "true"
         assert rapidoc.rapidoc_config["persist_auth"] == "true"
         assert rapidoc.rapidoc_config["api_key_name"] == "X-Custom-Key"
+
+    def test_rapidoc_config_attributes_in_html(self):
+        """Test that rapidoc_config is properly included as HTML attributes."""
+        brand_config = SynetoBrandConfig(theme=SynetoTheme.DARK, primary_color="#ff0000")
+        rapidoc = SynetoRapiDoc(brand_config=brand_config)
+
+        html = rapidoc.render()
+
+        # Verify that rapidoc_config attributes are included in the HTML
+        assert 'theme="dark"' in html
+        assert 'primary-color="#ff0000"' in html
+        assert 'bg-color="#07080d"' in html  # Dark theme background
+        assert 'render-style="read"' in html
+        assert 'allow-authentication="true"' in html
+        assert 'spec-url="/openapi.json"' in html
+
+        # Verify the rapi-doc element exists with attributes
+        assert "<rapi-doc" in html
+        assert "spec-url=" in html
+
+    def test_kwargs_override_hardcoded_values(self):
+        """Test that kwargs can override hardcoded rapidoc_config values."""
+        rapidoc = SynetoRapiDoc(
+            show_header="false",  # Override default "true"
+            render_style="view",  # Override default "read"
+            schema_style="tree",  # Override default "table"
+            allow_authentication="false",  # Override default "true"
+            response_area_height="600px",  # Override default "400px"
+        )
+
+        html = rapidoc.render()
+
+        # Verify that the overridden values are used
+        assert 'show-header="false"' in html
+        assert 'render-style="view"' in html
+        assert 'schema-style="tree"' in html
+        assert 'allow-authentication="false"' in html
+        assert 'response-area-height="600px"' in html
+
+        # Verify these are actually in the rapidoc_config
+        assert rapidoc.rapidoc_config["show_header"] == "false"
+        assert rapidoc.rapidoc_config["render_style"] == "view"
+        assert rapidoc.rapidoc_config["schema_style"] == "tree"
+        assert rapidoc.rapidoc_config["allow_authentication"] == "false"
+        assert rapidoc.rapidoc_config["response_area_height"] == "600px"
+
+    def test_parent_class_params_vs_rapidoc_config(self):
+        """Test that parent class parameters are properly separated from RapiDoc config."""
+        rapidoc = SynetoRapiDoc(
+            js_url="https://custom-cdn.com/rapidoc.js",  # Parent class param
+            favicon_url="/custom-favicon.ico",  # Parent class param
+            head_css_urls=["https://custom.css"],  # Parent class param
+            render_style="view",  # RapiDoc config param
+            show_header="false",  # RapiDoc config param
+        )
+
+        # Parent class parameters should NOT be in rapidoc_config
+        assert "js_url" not in rapidoc.rapidoc_config
+        assert "favicon_url" not in rapidoc.rapidoc_config
+        assert "head_css_urls" not in rapidoc.rapidoc_config
+
+        # RapiDoc parameters should be in rapidoc_config
+        assert rapidoc.rapidoc_config["render_style"] == "view"
+        assert rapidoc.rapidoc_config["show_header"] == "false"
+
+        # Verify parent class parameters are passed correctly
+        assert rapidoc.js_url == "https://custom-cdn.com/rapidoc.js"
+        assert rapidoc.favicon_url == "/custom-favicon.ico"
+        assert rapidoc.head_css_urls == ["https://custom.css"]

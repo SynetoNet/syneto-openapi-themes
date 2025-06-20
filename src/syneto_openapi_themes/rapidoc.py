@@ -30,12 +30,31 @@ class SynetoRapiDoc(RapiDoc):
             openapi_url: URL to the OpenAPI JSON schema
             title: Title for the documentation page
             brand_config: Syneto brand configuration
-            **kwargs: Additional RapiDoc configuration options
+            **kwargs: Additional RapiDoc configuration options. These can override any
+                     of the default RapiDoc settings. Common overridable parameters include:
+                     - render_style: "read" | "view" | "focused" (default: "read")
+                     - schema_style: "tree" | "table" (default: "table")
+                     - show_header: "true" | "false" (default: "true")
+                     - allow_authentication: "true" | "false" (default: "true")
+                     - response_area_height: CSS height value (default: "400px")
+                     - theme: "light" | "dark" (overrides brand_config.theme)
+                     - And many more RapiDoc attributes. See RapiDoc documentation for full list.
         """
         self.brand_config = brand_config or get_default_brand_config()
 
+        # Separate parent class parameters from RapiDoc configuration
+        parent_class_params = {"js_url", "head_js_urls", "tail_js_urls", "head_css_urls", "favicon_url"}
+
+        # Extract parent class parameters from kwargs
+        parent_kwargs = {k: v for k, v in kwargs.items() if k in parent_class_params}
+
+        # Extract RapiDoc configuration parameters (everything else)
+        rapidoc_kwargs = {k: v for k, v in kwargs.items() if k not in parent_class_params}
+
         # Store RapiDoc-specific configuration for use in rendering
+        # Note: rapidoc_kwargs will override any default values below
         self.rapidoc_config = {
+            # Brand-based configuration (from SynetoBrandConfig)
             "theme": self.brand_config.theme.value,
             "bg_color": self.brand_config.background_color,
             "text_color": self.brand_config.text_color,
@@ -50,39 +69,44 @@ class SynetoRapiDoc(RapiDoc):
             "regular_font": self.brand_config.regular_font,
             "mono_font": self.brand_config.mono_font,
             "logo": self.brand_config.logo_url,
+            # Layout and presentation defaults (can be overridden by kwargs)
             "render_style": "read",
             "schema_style": "table",
             "default_schema_tab": "schema",
             "response_area_height": "400px",
+            # Feature toggles (can be overridden by kwargs)
             "show_info": "true",
             "allow_authentication": "true",
             "allow_server_selection": "true",
             "allow_api_list_style_selection": "true",
             "show_header": "true",
             "show_components": "true",
+            # Navigation and routing (can be overridden by kwargs)
             "update_route": "true",
             "route_prefix": "#",
             "sort_tags": "true",
             "goto_path": "",
+            # Form behavior (can be overridden by kwargs)
             "fill_request_fields_with_example": "true",
             "persist_auth": "false",
-            # Disable JSON loading features at the top (requirement 2)
-            "allow_spec_url_load": "false",
+            # Security/access controls (can be overridden by kwargs)
+            "allow_spec_url_load": "false",  # Disable JSON loading features at the top
             "allow_spec_file_load": "false",
-            # Enable tag description in right pane when clicking on tags (requirement 1)
-            "on_nav_tag_click": "show-description",
-            **kwargs,
+            # UI behavior (can be overridden by kwargs)
+            "on_nav_tag_click": "show-description",  # Enable tag description in right pane
+            # Apply any user-provided overrides
+            **rapidoc_kwargs,
         }
 
         # Extract only valid parameters for the parent constructor
         valid_parent_params = {
             "title": title,
             "openapi_url": openapi_url,
-            "js_url": kwargs.get("js_url", "https://unpkg.com/rapidoc@9.3.8/dist/rapidoc-min.js"),
-            "head_js_urls": kwargs.get("head_js_urls", []),
-            "tail_js_urls": kwargs.get("tail_js_urls", []),
-            "head_css_urls": kwargs.get("head_css_urls", []),
-            "favicon_url": kwargs.get("favicon_url", self.brand_config.favicon_url),
+            "js_url": parent_kwargs.get("js_url", "https://unpkg.com/rapidoc@9.3.8/dist/rapidoc-min.js"),
+            "head_js_urls": parent_kwargs.get("head_js_urls", []),
+            "tail_js_urls": parent_kwargs.get("tail_js_urls", []),
+            "head_css_urls": parent_kwargs.get("head_css_urls", []),
+            "favicon_url": parent_kwargs.get("favicon_url", self.brand_config.favicon_url),
         }
 
         super().__init__(**valid_parent_params)
@@ -379,3 +403,42 @@ class SynetoRapiDoc(RapiDoc):
             }
         )
         return self
+
+    def get_html_template(self) -> str:
+        """
+        Return the HTML template for RapiDoc with Syneto configuration.
+
+        Returns:
+            HTML template string with RapiDoc configuration attributes
+        """
+        # Convert rapidoc_config to HTML attributes
+        rapidoc_attributes = []
+        for key, value in self.rapidoc_config.items():
+            # Convert Python dict keys to kebab-case HTML attributes
+            attr_name = key.replace("_", "-")
+            rapidoc_attributes.append(f'{attr_name}="{value}"')
+
+        attributes_str = " ".join(rapidoc_attributes)
+
+        html = f"""
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta charset="utf-8"/>
+                <title>{{title}}</title>
+                <link rel="shortcut icon" href="{{favicon_url}}">
+                {{head_css_str}}
+                {{head_js_str}}
+            </head>
+            <body>
+                <div class="syneto-rapidoc-container">
+                    <noscript>
+                        RapiDoc requires Javascript to function. Please enable it to browse the documentation.
+                    </noscript>
+                    <rapi-doc spec-url="{{openapi_url}}" {attributes_str}></rapi-doc>
+                </div>
+                {{tail_js_str}}
+            </body>
+        </html>
+        """
+        return html
