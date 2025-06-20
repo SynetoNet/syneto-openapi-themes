@@ -21,6 +21,7 @@ class SynetoRapiDoc(RapiDoc):
         openapi_url: str = "/openapi.json",
         title: str = "API Documentation",
         brand_config: Optional[SynetoBrandConfig] = None,
+        logo_slot_content: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -30,6 +31,7 @@ class SynetoRapiDoc(RapiDoc):
             openapi_url: URL to the OpenAPI JSON schema
             title: Title for the documentation page
             brand_config: Syneto brand configuration
+            logo_slot_content: HTML content for the nav-logo slot (overrides brand logo)
             **kwargs: Additional RapiDoc configuration options. These can override any
                      of the default RapiDoc settings. Common overridable parameters include:
                      - render_style: "read" | "view" | "focused" (default: "read")
@@ -41,6 +43,7 @@ class SynetoRapiDoc(RapiDoc):
                      - And many more RapiDoc attributes. See RapiDoc documentation for full list.
         """
         self.brand_config = brand_config or get_default_brand_config()
+        self.logo_slot_content = logo_slot_content
 
         # Separate parent class parameters from RapiDoc configuration
         parent_class_params = {"js_url", "head_js_urls", "tail_js_urls", "head_css_urls", "favicon_url"}
@@ -466,6 +469,20 @@ class SynetoRapiDoc(RapiDoc):
 
         attributes_str = " ".join(rapidoc_attributes)
 
+        # Add logo slot content if provided
+        logo_slot = ""
+        if self.logo_slot_content:
+            logo_slot = self.logo_slot_content
+        elif self.brand_config.logo_svg:
+            # Create an SVG logo slot using the brand config SVG
+            from .brand import svg_to_data_uri
+
+            svg_data_uri = svg_to_data_uri(self.brand_config.logo_svg)
+            logo_slot = '<img slot="nav-logo" '
+            logo_slot += f'src="{svg_data_uri}" '
+            logo_slot += f'alt="{self.brand_config.company_name} Logo" '
+            logo_slot += 'style="max-height: 40px; max-width: 200px;" />'
+
         html = f"""
         <!DOCTYPE html>
         <html>
@@ -481,7 +498,9 @@ class SynetoRapiDoc(RapiDoc):
                     <noscript>
                         RapiDoc requires Javascript to function. Please enable it to browse the documentation.
                     </noscript>
-                    <rapi-doc spec-url="{{openapi_url}}" {attributes_str}></rapi-doc>
+                    <rapi-doc spec-url="{{openapi_url}}" {attributes_str}>
+                        {logo_slot}
+                    </rapi-doc>
                 </div>
                 {{tail_js_str}}
             </body>

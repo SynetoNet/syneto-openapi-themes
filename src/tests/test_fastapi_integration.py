@@ -35,7 +35,10 @@ class TestFastAPIIntegrationFunctions:
 
             # Verify RapiDoc was initialized correctly
             mock_rapidoc.assert_called_once_with(
-                openapi_url="/openapi.json", title="Test API - API Documentation", brand_config=None
+                openapi_url="/openapi.json",
+                title="Test API - API Documentation",
+                brand_config=None,
+                logo_slot_content=None,
             )
 
             # Verify route was added (FastAPI may add default docs route too)
@@ -63,7 +66,11 @@ class TestFastAPIIntegrationFunctions:
 
             # Verify RapiDoc was initialized with custom parameters
             mock_rapidoc.assert_called_once_with(
-                openapi_url="/custom/openapi.json", title="Custom Title", brand_config=brand_config, custom_param="test"
+                openapi_url="/custom/openapi.json",
+                title="Custom Title",
+                brand_config=brand_config,
+                logo_slot_content=None,
+                custom_param="test",
             )
 
             # Verify custom route was added
@@ -517,7 +524,7 @@ class TestFastAPIIntegrationEdgeCases:
 
             # Should handle None title gracefully
             mock_rapidoc.assert_called_once_with(
-                openapi_url="/openapi.json", title="None - API Documentation", brand_config=None
+                openapi_url="/openapi.json", title="None - API Documentation", brand_config=None, logo_slot_content=None
             )
 
     def test_manager_with_custom_openapi_url(self):

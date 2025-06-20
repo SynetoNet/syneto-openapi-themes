@@ -22,6 +22,7 @@ def add_syneto_rapidoc(
     docs_url: str = "/docs",
     title: Optional[str] = None,
     brand_config: Optional[SynetoBrandConfig] = None,
+    logo_slot_content: Optional[str] = None,
     **kwargs: Any,
 ) -> None:
     """
@@ -33,12 +34,15 @@ def add_syneto_rapidoc(
         docs_url: URL where the documentation will be served
         title: Title for the documentation page
         brand_config: Syneto brand configuration
+        logo_slot_content: HTML content for the nav-logo slot (overrides brand logo)
         **kwargs: Additional RapiDoc configuration options
     """
     if title is None:
         title = f"{app.title} - API Documentation"
 
-    rapidoc = SynetoRapiDoc(openapi_url=openapi_url, title=title, brand_config=brand_config, **kwargs)
+    rapidoc = SynetoRapiDoc(
+        openapi_url=openapi_url, title=title, brand_config=brand_config, logo_slot_content=logo_slot_content, **kwargs
+    )
 
     @app.get(docs_url, response_class=HTMLResponse, include_in_schema=False)
     def get_rapidoc_documentation() -> str:

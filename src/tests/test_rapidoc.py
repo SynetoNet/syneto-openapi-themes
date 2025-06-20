@@ -68,7 +68,8 @@ class TestSynetoRapiDocRendering:
 
         assert "#custom123" in result
         assert "#bg456" in result
-        assert "Test Corp" not in result  # Company name not directly in CSS
+        # Company name now appears in logo slot alt text
+        assert "Test Corp Logo" in result
 
     def test_render_includes_css_variables(self):
         """Test that render includes CSS variables from brand config."""
@@ -143,6 +144,37 @@ class TestSynetoRapiDocRendering:
         # but should not be used for the --blue CSS variable
         assert "--blue: #ff53a8" in html  # New brand color for blue variable
         assert "--blue: #006aff" not in html  # Old harsh blue should be gone
+
+    def test_logo_slot_functionality(self):
+        """Test that logo slot is correctly included in the HTML."""
+        rapidoc = SynetoRapiDoc()
+        html = rapidoc.render()
+
+        # Check that logo slot is present
+        assert 'slot="nav-logo"' in html
+        assert "data:image/svg+xml" in html
+        assert 'alt="Syneto Logo"' in html
+
+        # Check that logo is inside rapi-doc element
+        import re
+
+        rapi_doc_match = re.search(r"<rapi-doc[^>]*>(.*?)</rapi-doc>", html, re.DOTALL)
+        assert rapi_doc_match is not None
+        assert 'slot="nav-logo"' in rapi_doc_match.group(1)
+
+    def test_custom_logo_slot_content(self):
+        """Test that custom logo slot content overrides default."""
+        custom_logo = '<img slot="nav-logo" src="/custom-logo.png" alt="Custom Logo" />'
+        rapidoc = SynetoRapiDoc(logo_slot_content=custom_logo)
+        html = rapidoc.render()
+
+        # Check that custom logo content is present
+        assert custom_logo in html
+        assert 'src="/custom-logo.png"' in html
+        assert 'alt="Custom Logo"' in html
+
+        # Check that default Syneto logo is not present when custom is used
+        assert 'alt="Syneto Logo"' not in html
 
 
 class TestSynetoRapiDocCustomizations:
