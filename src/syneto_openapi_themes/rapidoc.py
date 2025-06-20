@@ -53,6 +53,10 @@ class SynetoRapiDoc(RapiDoc):
 
         # Store RapiDoc-specific configuration for use in rendering
         # Note: rapidoc_kwargs will override any default values below
+
+        # Get the properly processed logo value (handles SVG conversion)
+        rapidoc_attrs = self.brand_config.to_rapidoc_attributes()
+
         self.rapidoc_config = {
             # Brand-based configuration (from SynetoBrandConfig)
             "theme": self.brand_config.theme.value,
@@ -68,7 +72,7 @@ class SynetoRapiDoc(RapiDoc):
             "nav_accent_text_color": self.brand_config.nav_accent_text_color,
             "regular_font": self.brand_config.regular_font,
             "mono_font": self.brand_config.mono_font,
-            "logo": self.brand_config.logo_url,
+            "logo": rapidoc_attrs["logo"],  # Use the properly processed logo value
             # Layout and presentation defaults (can be overridden by kwargs)
             "render_style": "read",
             "schema_style": "table",

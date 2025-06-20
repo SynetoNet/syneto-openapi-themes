@@ -2,12 +2,17 @@
 Tests for the brand configuration module.
 """
 
+import pytest
+
 from syneto_openapi_themes.brand import (
     SynetoBrandConfig,
     SynetoColors,
     SynetoTheme,
+    get_brand_config_with_custom_logo,
+    get_brand_config_with_svg_logo,
     get_default_brand_config,
     get_light_brand_config,
+    svg_to_data_uri,
 )
 
 
@@ -36,6 +41,39 @@ class TestSynetoTheme:
         assert SynetoTheme.DARK.value == "dark"
         assert SynetoTheme.LIGHT.value == "light"
         assert SynetoTheme.AUTO.value == "auto"
+
+
+class TestSvgToDataUri:
+    """Test the svg_to_data_uri function."""
+
+    def test_valid_svg_content(self):
+        """Test converting valid SVG content to data URI."""
+        svg_content = '<?xml version="1.0" encoding="UTF-8"?>'
+        svg_content += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
+        svg_content += '<circle cx="50" cy="50" r="40" fill="#ad0f6c"/>'
+        svg_content += "</svg>"
+        result = svg_to_data_uri(svg_content)
+
+        assert result.startswith("data:image/svg+xml;utf8,")
+        assert "%3C?xml" in result  # URL encoded <?xml
+        assert "%2523ad0f6c" in result  # URL encoded #ad0f6c (# becomes %23, then % becomes %25)
+
+    def test_svg_without_xml_declaration(self):
+        """Test converting SVG content without XML declaration."""
+        svg_content = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
+        svg_content += '<circle cx="50" cy="50" r="40" fill="#ad0f6c"/>'
+        svg_content += "</svg>"
+        result = svg_to_data_uri(svg_content)
+
+        assert result.startswith("data:image/svg+xml;utf8,")
+        assert "%3Csvg" in result  # URL encoded <svg
+
+    def test_invalid_svg_content(self):
+        """Test error handling for invalid SVG content."""
+        invalid_content = "This is not SVG content"
+
+        with pytest.raises(ValueError, match=r"SVG content must start with <\?xml or <svg"):
+            svg_to_data_uri(invalid_content)
 
 
 class TestSynetoBrandConfig:
@@ -108,3 +146,45 @@ class TestBrandConfigHelpers:
         assert config.theme == SynetoTheme.LIGHT
         assert config.background_color == SynetoColors.BG_LIGHTEST  # Updated to new color constant
         assert config.text_color == SynetoColors.NEUTRAL_DARKEST  # Updated to new color constant
+
+    def test_get_brand_config_with_custom_logo(self):
+        """Test custom logo brand config helper."""
+        logo_url = "/static/my-logo.svg"
+        config = get_brand_config_with_custom_logo(logo_url)
+
+        assert isinstance(config, SynetoBrandConfig)
+        assert config.logo_url == logo_url
+        assert config.theme == SynetoTheme.DARK  # Default theme
+
+    def test_get_brand_config_with_custom_logo_and_kwargs(self):
+        """Test custom logo brand config helper with additional kwargs."""
+        logo_url = "/static/my-logo.svg"
+        config = get_brand_config_with_custom_logo(logo_url, theme=SynetoTheme.LIGHT, company_name="My Company")
+
+        assert isinstance(config, SynetoBrandConfig)
+        assert config.logo_url == logo_url
+        assert config.theme == SynetoTheme.LIGHT
+        assert config.company_name == "My Company"
+
+    def test_get_brand_config_with_svg_logo(self):
+        """Test SVG logo brand config helper."""
+        svg_content = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
+        svg_content += '<circle cx="50" cy="50" r="40" fill="#ad0f6c"/>'
+        svg_content += "</svg>"
+        config = get_brand_config_with_svg_logo(svg_content)
+
+        assert isinstance(config, SynetoBrandConfig)
+        assert config.logo_svg == svg_content
+        assert config.theme == SynetoTheme.DARK  # Default theme
+
+    def test_get_brand_config_with_svg_logo_and_kwargs(self):
+        """Test SVG logo brand config helper with additional kwargs."""
+        svg_content = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
+        svg_content += '<circle cx="50" cy="50" r="40" fill="#ad0f6c"/>'
+        svg_content += "</svg>"
+        config = get_brand_config_with_svg_logo(svg_content, theme=SynetoTheme.LIGHT, company_name="My Company")
+
+        assert isinstance(config, SynetoBrandConfig)
+        assert config.logo_svg == svg_content
+        assert config.theme == SynetoTheme.LIGHT
+        assert config.company_name == "My Company"
