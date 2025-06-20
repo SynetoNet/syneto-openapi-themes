@@ -192,6 +192,101 @@ config = SynetoBrandConfig(
 )
 ```
 
+### Logo Customization
+
+**NEW**: Syneto OpenAPI Themes now includes the official Syneto logo by default! No configuration needed for Syneto projects.
+
+```python
+from syneto_openapi_themes import add_syneto_rapidoc
+
+# Default configuration automatically includes the official Syneto logo
+add_syneto_rapidoc(app, docs_url="/docs")
+```
+
+You can still customize the logo with either external URLs or inline SVG content:
+
+#### Using Logo URLs
+
+```python
+from syneto_openapi_themes import get_brand_config_with_custom_logo
+
+# Use a local logo file
+config = get_brand_config_with_custom_logo("/static/my-company-logo.svg")
+
+# Use an external logo URL
+config = get_brand_config_with_custom_logo("https://example.com/logo.svg")
+
+# Combine with other customizations
+config = get_brand_config_with_custom_logo(
+    "/static/my-logo.svg",
+    theme=SynetoTheme.LIGHT,
+    company_name="My Company",
+    primary_color="#ff0000"
+)
+```
+
+#### Using Inline SVG Content (Recommended)
+
+For better performance and reliability, you can embed SVG content directly:
+
+```python
+from syneto_openapi_themes import get_brand_config_with_svg_logo, SYNETO_LOGO_SVG
+
+# Option 1: Use your own custom SVG
+custom_svg = '''<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50">
+    <rect width="200" height="50" fill="#ad0f6c"/>
+    <text x="100" y="30" text-anchor="middle" fill="white" font-family="Arial" font-size="16">
+        My Company
+    </text>
+</svg>'''
+
+config = get_brand_config_with_svg_logo(custom_svg, company_name="My Company")
+
+# Option 2: Use the official Syneto logo constant explicitly
+config = get_brand_config_with_svg_logo(
+    SYNETO_LOGO_SVG,  # Official Syneto logo (same as default)
+    company_name="Syneto"
+)
+
+# Combine with other customizations
+config = get_brand_config_with_svg_logo(
+    custom_svg,
+    theme=SynetoTheme.LIGHT,
+    company_name="My Company",
+    primary_color="#ff0000"
+)
+
+# Use with any documentation tool
+add_syneto_rapidoc(app, brand_config=config)
+```
+
+#### Manual Configuration
+
+```python
+from syneto_openapi_themes import SynetoBrandConfig, svg_to_data_uri
+
+# Convert SVG to data URI manually
+svg_content = '''<svg>...</svg>'''
+data_uri = svg_to_data_uri(svg_content)
+
+# Use in brand config
+config = SynetoBrandConfig(
+    logo_svg=svg_content,  # Inline SVG takes precedence
+    logo_url="/fallback/logo.svg",  # Fallback URL
+    company_name="My Company"
+)
+```
+
+**Logo Requirements:**
+- **Format**: SVG recommended for best scaling and quality
+- **Size**: Optimal dimensions are approximately 120x32 pixels
+- **Colors**: Should work well on dark backgrounds (default theme)
+- **Accessibility**: Include proper alt text and contrast ratios
+- **Built-in Logo Benefits**: Zero configuration for Syneto projects, consistent branding
+- **Inline SVG Benefits**: No external requests, better performance, works offline
+- **Still Customizable**: Easy to override when needed
+
 ### Available Colors
 
 ```python
