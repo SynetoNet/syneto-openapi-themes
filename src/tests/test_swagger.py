@@ -2,7 +2,7 @@
 Tests for the SynetoSwaggerUI implementation.
 """
 
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from syneto_openapi_themes.brand import SynetoBrandConfig, SynetoTheme
 from syneto_openapi_themes.swagger import SynetoSwaggerUI
@@ -11,7 +11,7 @@ from syneto_openapi_themes.swagger import SynetoSwaggerUI
 class TestSynetoSwaggerUIInitialization:
     """Test SynetoSwaggerUI initialization and configuration."""
 
-    def test_default_initialization(self):
+    def test_default_initialization(self) -> None:
         """Test default SwaggerUI initialization."""
         swagger = SynetoSwaggerUI()
 
@@ -20,7 +20,7 @@ class TestSynetoSwaggerUIInitialization:
         assert swagger.brand_config is not None
         assert swagger.brand_config.theme == SynetoTheme.DARK
 
-    def test_custom_initialization(self):
+    def test_custom_initialization(self) -> None:
         """Test SwaggerUI initialization with custom parameters."""
         brand_config = SynetoBrandConfig(theme=SynetoTheme.LIGHT, company_name="Custom Corp", primary_color="#ff0000")
 
@@ -37,7 +37,7 @@ class TestSynetoSwaggerUIInitialization:
         assert swagger.brand_config.company_name == "Custom Corp"
         assert swagger.brand_config.primary_color == "#ff0000"
 
-    def test_initialization_with_none_brand_config(self):
+    def test_initialization_with_none_brand_config(self) -> None:
         """Test initialization with explicitly None brand config."""
         swagger = SynetoSwaggerUI(brand_config=None)
 
@@ -49,7 +49,7 @@ class TestSynetoSwaggerUIRendering:
     """Test SynetoSwaggerUI HTML rendering functionality."""
 
     @patch("syneto_openapi_themes.swagger.SwaggerUI.render")
-    def test_render_calls_parent_and_injects_customizations(self, mock_parent_render):
+    def test_render_calls_parent_and_injects_customizations(self, mock_parent_render: Mock) -> None:
         """Test that render calls parent and injects Syneto customizations."""
         mock_parent_render.return_value = "<html><head></head><body>Base HTML</body></html>"
 
@@ -62,7 +62,7 @@ class TestSynetoSwaggerUIRendering:
         assert swagger.brand_config.primary_color in result
 
     @patch("syneto_openapi_themes.swagger.SwaggerUI.render")
-    def test_render_with_custom_brand_config(self, mock_parent_render):
+    def test_render_with_custom_brand_config(self, mock_parent_render: Mock) -> None:
         """Test rendering with custom brand configuration."""
         mock_parent_render.return_value = "<html><head></head><body>Base HTML</body></html>"
 
@@ -76,7 +76,7 @@ class TestSynetoSwaggerUIRendering:
         assert "#nav789" in result
 
     @patch("syneto_openapi_themes.swagger.SwaggerUI.render")
-    def test_render_includes_css_variables(self, mock_parent_render):
+    def test_render_includes_css_variables(self, mock_parent_render: Mock) -> None:
         """Test that render includes CSS variables from brand config."""
         mock_parent_render.return_value = "<html><head></head><body>Base HTML</body></html>"
 
@@ -88,7 +88,7 @@ class TestSynetoSwaggerUIRendering:
         assert ":root" in result
 
     @patch("syneto_openapi_themes.swagger.SwaggerUI.render")
-    def test_render_includes_loading_css(self, mock_parent_render):
+    def test_render_includes_loading_css(self, mock_parent_render: Mock) -> None:
         """Test that render includes loading CSS."""
         mock_parent_render.return_value = "<html><head></head><body>Base HTML</body></html>"
 
@@ -100,7 +100,7 @@ class TestSynetoSwaggerUIRendering:
         assert "@keyframes syneto-spin" in result
 
     @patch("syneto_openapi_themes.swagger.SwaggerUI.render")
-    def test_render_includes_swagger_specific_styling(self, mock_parent_render):
+    def test_render_includes_swagger_specific_styling(self, mock_parent_render: Mock) -> None:
         """Test that render includes SwaggerUI-specific styling."""
         mock_parent_render.return_value = "<html><head></head><body>Base HTML</body></html>"
 
@@ -113,7 +113,7 @@ class TestSynetoSwaggerUIRendering:
         assert ".swagger-ui .btn.execute" in result
 
     @patch("syneto_openapi_themes.swagger.SwaggerUI.render")
-    def test_render_includes_javascript_enhancements(self, mock_parent_render):
+    def test_render_includes_javascript_enhancements(self, mock_parent_render: Mock) -> None:
         """Test that render includes JavaScript enhancements."""
         mock_parent_render.return_value = "<html><head></head><body>Base HTML</body></html>"
 
@@ -126,7 +126,7 @@ class TestSynetoSwaggerUIRendering:
         assert "swagger-ui" in swagger.render()
 
     @patch("syneto_openapi_themes.swagger.SwaggerUI.render")
-    def test_render_with_kwargs(self, mock_parent_render):
+    def test_render_with_kwargs(self, mock_parent_render: Mock) -> None:
         """Test rendering with additional template variables."""
         mock_parent_render.return_value = "<html><head></head><body>Base HTML</body></html>"
 
@@ -139,7 +139,7 @@ class TestSynetoSwaggerUIRendering:
 class TestSynetoSwaggerUICustomizations:
     """Test SynetoSwaggerUI customization injection."""
 
-    def test_inject_syneto_customizations_with_minimal_html(self):
+    def test_inject_syneto_customizations_with_minimal_html(self) -> None:
         """Test customization injection with minimal HTML."""
         swagger = SynetoSwaggerUI()
         base_html = "<html><body>Test</body></html>"
@@ -150,7 +150,7 @@ class TestSynetoSwaggerUICustomizations:
         assert ".swagger-ui" in result
         assert swagger.brand_config.primary_color in result
 
-    def test_inject_syneto_customizations_preserves_original_content(self):
+    def test_inject_syneto_customizations_preserves_original_content(self) -> None:
         """Test that customization injection preserves original HTML content."""
         swagger = SynetoSwaggerUI()
         base_html = "<html><body><div id='swagger-ui'>Original Content</div></body></html>"
@@ -160,7 +160,7 @@ class TestSynetoSwaggerUICustomizations:
         assert "Original Content" in result
         assert "<div id='swagger-ui'>" in result
 
-    def test_inject_syneto_customizations_includes_scrollbar_styling(self):
+    def test_inject_syneto_customizations_includes_scrollbar_styling(self) -> None:
         """Test that customizations include scrollbar styling."""
         swagger = SynetoSwaggerUI()
         base_html = "<html><body>Test</body></html>"
@@ -171,7 +171,7 @@ class TestSynetoSwaggerUICustomizations:
         assert "::-webkit-scrollbar-thumb" in result
         assert "::-webkit-scrollbar-track" in result
 
-    def test_inject_syneto_customizations_includes_method_styling(self):
+    def test_inject_syneto_customizations_includes_method_styling(self) -> None:
         """Test that customizations include HTTP method styling."""
         swagger = SynetoSwaggerUI()
         base_html = "<html><body>Test</body></html>"
@@ -183,7 +183,7 @@ class TestSynetoSwaggerUICustomizations:
         assert ".opblock-put" in result
         assert ".opblock-delete" in result
 
-    def test_inject_syneto_customizations_includes_error_handling(self):
+    def test_inject_syneto_customizations_includes_error_handling(self) -> None:
         """Test that customizations include error handling JavaScript."""
         swagger = SynetoSwaggerUI()
         base_html = "<html><body>Test</body></html>"
@@ -198,7 +198,7 @@ class TestSynetoSwaggerUICustomizations:
 class TestSynetoSwaggerUIEdgeCases:
     """Test SynetoSwaggerUI edge cases and error conditions."""
 
-    def test_render_with_empty_base_html(self):
+    def test_render_with_empty_base_html(self) -> None:
         """Test rendering with empty base HTML."""
         with patch("syneto_openapi_themes.swagger.SwaggerUI.render") as mock_render:
             mock_render.return_value = ""
@@ -209,7 +209,7 @@ class TestSynetoSwaggerUIEdgeCases:
             # Should still inject customizations even with empty base
             assert "<style>" in result
 
-    def test_render_with_malformed_base_html(self):
+    def test_render_with_malformed_base_html(self) -> None:
         """Test rendering with malformed base HTML."""
         with patch("syneto_openapi_themes.swagger.SwaggerUI.render") as mock_render:
             mock_render.return_value = "<html><body>Unclosed tag"
@@ -221,7 +221,7 @@ class TestSynetoSwaggerUIEdgeCases:
             assert "Syneto SwaggerUI Theme" in result
             assert "Unclosed tag" in result
 
-    def test_inject_customizations_with_special_characters(self):
+    def test_inject_customizations_with_special_characters(self) -> None:
         """Test customization injection with special characters in brand config."""
         brand_config = SynetoBrandConfig(company_name="Test & Co. <script>", primary_color="#ff0000")
 
@@ -238,7 +238,7 @@ class TestSynetoSwaggerUIEdgeCases:
 class TestSynetoSwaggerUIIntegration:
     """Test SynetoSwaggerUI integration scenarios."""
 
-    def test_full_rendering_workflow(self):
+    def test_full_rendering_workflow(self) -> None:
         """Test complete rendering workflow from initialization to final HTML."""
         brand_config = SynetoBrandConfig(
             theme=SynetoTheme.LIGHT, primary_color="#test123", company_name="Integration Test Corp"
@@ -274,7 +274,7 @@ class TestSynetoSwaggerUIIntegration:
             assert "swagger-ui" in result
             assert "API Docs" in result
 
-    def test_theme_consistency_across_components(self):
+    def test_theme_consistency_across_components(self) -> None:
         """Test that theme settings are consistent across all components."""
         brand_config = SynetoBrandConfig(theme=SynetoTheme.LIGHT)
         swagger = SynetoSwaggerUI(brand_config=brand_config)
@@ -289,7 +289,7 @@ class TestSynetoSwaggerUIIntegration:
             assert brand_config.text_color in result
             assert brand_config.primary_color in result
 
-    def test_authorization_button_styling(self):
+    def test_authorization_button_styling(self) -> None:
         """Test that authorization buttons are properly styled."""
         swagger = SynetoSwaggerUI()
 
@@ -303,7 +303,7 @@ class TestSynetoSwaggerUIIntegration:
             assert "background-color" in result
             assert "border-color" in result
 
-    def test_method_badge_colors(self):
+    def test_method_badge_colors(self) -> None:
         """Test that HTTP method badges have correct colors."""
         swagger = SynetoSwaggerUI()
 
@@ -319,7 +319,7 @@ class TestSynetoSwaggerUIIntegration:
             assert ".opblock-delete" in result
             assert "#f01932" in result  # Delete method color
 
-    def test_get_oauth_config(self):
+    def test_get_oauth_config(self) -> None:
         """Test getting OAuth configuration."""
         swagger = SynetoSwaggerUI()
         config = swagger.get_oauth_config()
@@ -333,7 +333,7 @@ class TestSynetoSwaggerUIIntegration:
         assert "additionalQueryStringParams" in config
         assert "useBasicAuthenticationWithAccessCodeGrant" in config
 
-    def test_with_oauth2(self):
+    def test_with_oauth2(self) -> None:
         """Test configuring OAuth2 authentication."""
         swagger = SynetoSwaggerUI()
         result = swagger.with_oauth2("custom-client", "custom-realm", ["read", "write", "admin"])
@@ -348,7 +348,7 @@ class TestSynetoSwaggerUIIntegration:
         assert oauth_config["realm"] == "custom-realm"
         assert oauth_config["scopes"] == ["read", "write", "admin"]
 
-    def test_with_api_key_auth(self):
+    def test_with_api_key_auth(self) -> None:
         """Test configuring API key authentication."""
         swagger = SynetoSwaggerUI()
         result = swagger.with_api_key_auth("Custom-API-Key")
@@ -360,7 +360,7 @@ class TestSynetoSwaggerUIIntegration:
         assert swagger.swagger_config["persistAuthorization"] is True
         assert swagger.swagger_config["tryItOutEnabled"] is True
 
-    def test_authentication_chaining(self):
+    def test_authentication_chaining(self) -> None:
         """Test chaining authentication configuration methods."""
         swagger = SynetoSwaggerUI()
 

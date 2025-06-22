@@ -2,7 +2,7 @@
 Tests for the SynetoRedoc implementation.
 """
 
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from syneto_openapi_themes.brand import SynetoBrandConfig, SynetoColors, SynetoTheme
 from syneto_openapi_themes.redoc import SynetoReDoc
@@ -11,7 +11,7 @@ from syneto_openapi_themes.redoc import SynetoReDoc
 class TestSynetoRedocInitialization:
     """Test SynetoReDoc initialization and configuration."""
 
-    def test_default_initialization(self):
+    def test_default_initialization(self) -> None:
         """Test default Redoc initialization."""
         redoc = SynetoReDoc()
 
@@ -20,7 +20,7 @@ class TestSynetoRedocInitialization:
         assert redoc.brand_config is not None
         assert redoc.brand_config.theme == SynetoTheme.DARK
 
-    def test_custom_initialization(self):
+    def test_custom_initialization(self) -> None:
         """Test Redoc initialization with custom parameters."""
         brand_config = SynetoBrandConfig(theme=SynetoTheme.LIGHT, company_name="Custom Corp", primary_color="#ff0000")
 
@@ -37,7 +37,7 @@ class TestSynetoRedocInitialization:
         assert redoc.brand_config.company_name == "Custom Corp"
         assert redoc.brand_config.primary_color == "#ff0000"
 
-    def test_initialization_with_none_brand_config(self):
+    def test_initialization_with_none_brand_config(self) -> None:
         """Test initialization with explicitly None brand config."""
         redoc = SynetoReDoc(brand_config=None)
 
@@ -49,7 +49,7 @@ class TestSynetoRedocRendering:
     """Test SynetoRedoc HTML rendering functionality."""
 
     @patch("syneto_openapi_themes.redoc.ReDoc.render")
-    def test_render_calls_parent_and_injects_customizations(self, mock_parent_render):
+    def test_render_calls_parent_and_injects_customizations(self, mock_parent_render: Mock) -> None:
         """Test that render calls parent and injects Syneto customizations."""
         mock_parent_render.return_value = "<html><head></head><body>Base HTML</body></html>"
 
@@ -62,7 +62,7 @@ class TestSynetoRedocRendering:
         assert redoc.brand_config.primary_color in result
 
     @patch("syneto_openapi_themes.redoc.ReDoc.render")
-    def test_render_with_custom_brand_config(self, mock_parent_render):
+    def test_render_with_custom_brand_config(self, mock_parent_render: Mock) -> None:
         """Test rendering with custom brand configuration."""
         mock_parent_render.return_value = "<html><head></head><body>Base HTML</body></html>"
 
@@ -76,7 +76,7 @@ class TestSynetoRedocRendering:
         assert "#nav789" in result
 
     @patch("syneto_openapi_themes.redoc.ReDoc.render")
-    def test_render_includes_css_variables(self, mock_parent_render):
+    def test_render_includes_css_variables(self, mock_parent_render: Mock) -> None:
         """Test that render includes CSS variables from brand config."""
         mock_parent_render.return_value = "<html><head></head><body>Base HTML</body></html>"
 
@@ -88,7 +88,7 @@ class TestSynetoRedocRendering:
         assert ":root" in result
 
     @patch("syneto_openapi_themes.redoc.ReDoc.render")
-    def test_render_includes_loading_css(self, mock_parent_render):
+    def test_render_includes_loading_css(self, mock_parent_render: Mock) -> None:
         """Test that render includes loading CSS."""
         mock_parent_render.return_value = "<html><head></head><body>Base HTML</body></html>"
 
@@ -100,7 +100,7 @@ class TestSynetoRedocRendering:
         assert "@keyframes syneto-spin" in result
 
     @patch("syneto_openapi_themes.redoc.ReDoc.render")
-    def test_render_includes_redoc_specific_styling(self, mock_parent_render):
+    def test_render_includes_redoc_specific_styling(self, mock_parent_render: Mock) -> None:
         """Test that render includes Redoc-specific styling."""
         mock_parent_render.return_value = "<html><head></head><body>Base HTML</body></html>"
 
@@ -113,7 +113,7 @@ class TestSynetoRedocRendering:
         assert ".operation-type" in result
 
     @patch("syneto_openapi_themes.redoc.ReDoc.render")
-    def test_render_includes_javascript_enhancements(self, mock_parent_render):
+    def test_render_includes_javascript_enhancements(self, mock_parent_render: Mock) -> None:
         """Test that render includes JavaScript enhancements."""
         mock_parent_render.return_value = "<html><head></head><body>Base HTML</body></html>"
 
@@ -126,7 +126,7 @@ class TestSynetoRedocRendering:
         assert "redoc-container" in redoc.render()
 
     @patch("syneto_openapi_themes.redoc.ReDoc.render")
-    def test_render_with_kwargs(self, mock_parent_render):
+    def test_render_with_kwargs(self, mock_parent_render: Mock) -> None:
         """Test rendering with additional template variables."""
         mock_parent_render.return_value = "<html><head></head><body>Base HTML</body></html>"
 
@@ -139,7 +139,7 @@ class TestSynetoRedocRendering:
 class TestSynetoRedocCustomizations:
     """Test SynetoRedoc customization injection."""
 
-    def test_inject_syneto_customizations_with_minimal_html(self):
+    def test_inject_syneto_customizations_with_minimal_html(self) -> None:
         """Test customization injection with minimal HTML."""
         redoc = SynetoReDoc()
         base_html = "<html><body>Test</body></html>"
@@ -150,7 +150,7 @@ class TestSynetoRedocCustomizations:
         assert ".redoc-wrap" in result
         assert redoc.brand_config.primary_color in result
 
-    def test_inject_syneto_customizations_preserves_original_content(self):
+    def test_inject_syneto_customizations_preserves_original_content(self) -> None:
         """Test that customization injection preserves original HTML content."""
         redoc = SynetoReDoc()
         base_html = "<html><body><div id='redoc-container'>Original Content</div></body></html>"
@@ -160,7 +160,7 @@ class TestSynetoRedocCustomizations:
         assert "Original Content" in result
         assert "<div id='redoc-container'>" in result
 
-    def test_inject_syneto_customizations_includes_scrollbar_styling(self):
+    def test_inject_syneto_customizations_includes_scrollbar_styling(self) -> None:
         """Test that customizations include scrollbar styling."""
         redoc = SynetoReDoc()
         base_html = "<html><body>Test</body></html>"
@@ -171,7 +171,7 @@ class TestSynetoRedocCustomizations:
         assert "::-webkit-scrollbar-thumb" in result
         assert "::-webkit-scrollbar-track" in result
 
-    def test_inject_syneto_customizations_includes_method_styling(self):
+    def test_inject_syneto_customizations_includes_method_styling(self) -> None:
         """Test that customizations include HTTP method styling."""
         redoc = SynetoReDoc()
         base_html = "<html><body>Test</body></html>"
@@ -183,7 +183,7 @@ class TestSynetoRedocCustomizations:
         assert ".operation-type.put" in result
         assert ".operation-type.delete" in result
 
-    def test_inject_syneto_customizations_includes_error_handling(self):
+    def test_inject_syneto_customizations_includes_error_handling(self) -> None:
         """Test that customizations include error handling JavaScript."""
         redoc = SynetoReDoc()
         base_html = "<html><body>Test</body></html>"
@@ -198,7 +198,7 @@ class TestSynetoRedocCustomizations:
 class TestSynetoRedocEdgeCases:
     """Test SynetoRedoc edge cases and error conditions."""
 
-    def test_render_with_empty_base_html(self):
+    def test_render_with_empty_base_html(self) -> None:
         """Test rendering with empty base HTML."""
         with patch("syneto_openapi_themes.redoc.ReDoc.render") as mock_render:
             mock_render.return_value = ""
@@ -209,7 +209,7 @@ class TestSynetoRedocEdgeCases:
             # Should still inject customizations even with empty base
             assert "<style>" in result
 
-    def test_render_with_malformed_base_html(self):
+    def test_render_with_malformed_base_html(self) -> None:
         """Test rendering with malformed base HTML."""
         with patch("syneto_openapi_themes.redoc.ReDoc.render") as mock_render:
             mock_render.return_value = "<html><body>Unclosed tag"
@@ -221,7 +221,7 @@ class TestSynetoRedocEdgeCases:
             assert "Syneto ReDoc Theme" in result
             assert "Unclosed tag" in result
 
-    def test_inject_customizations_with_special_characters(self):
+    def test_inject_customizations_with_special_characters(self) -> None:
         """Test customization injection with special characters in brand config."""
         brand_config = SynetoBrandConfig(company_name="Test & Co. <script>", primary_color="#ff0000")
 
@@ -238,7 +238,7 @@ class TestSynetoRedocEdgeCases:
 class TestSynetoRedocIntegration:
     """Test SynetoRedoc integration scenarios."""
 
-    def test_full_rendering_workflow(self):
+    def test_full_rendering_workflow(self) -> None:
         """Test complete rendering workflow from initialization to final HTML."""
         brand_config = SynetoBrandConfig(
             theme=SynetoTheme.LIGHT, primary_color="#test123", company_name="Integration Test Corp"
@@ -272,7 +272,7 @@ class TestSynetoRedocIntegration:
             assert "redoc-container" in result
             assert "API Docs" in result
 
-    def test_theme_consistency_across_components(self):
+    def test_theme_consistency_across_components(self) -> None:
         """Test that theme settings are consistent across all components."""
         brand_config = SynetoBrandConfig(theme=SynetoTheme.LIGHT)
         redoc = SynetoReDoc(brand_config=brand_config)
@@ -287,7 +287,7 @@ class TestSynetoRedocIntegration:
             assert brand_config.text_color in result
             assert brand_config.primary_color in result
 
-    def test_navigation_styling(self):
+    def test_navigation_styling(self) -> None:
         """Test that navigation elements are properly styled."""
         redoc = SynetoReDoc()
 
@@ -300,7 +300,7 @@ class TestSynetoRedocIntegration:
             assert ".api-content" in result
             assert "background-color" in result
 
-    def test_method_badge_colors(self):
+    def test_method_badge_colors(self) -> None:
         """Test that HTTP method badges have correct colors."""
         redoc = SynetoReDoc()
 
@@ -316,7 +316,7 @@ class TestSynetoRedocIntegration:
             assert ".operation-type.delete" in result
             assert "#f01932" in result  # Delete method color
 
-    def test_dark_theme_specific_styling(self):
+    def test_dark_theme_specific_styling(self) -> None:
         """Test dark theme specific styling elements."""
         brand_config = SynetoBrandConfig(theme=SynetoTheme.DARK)
         redoc = SynetoReDoc(brand_config=brand_config)
@@ -330,7 +330,7 @@ class TestSynetoRedocIntegration:
             assert SynetoColors.PRIMARY_DARK in result
             assert SynetoColors.PRIMARY_LIGHT in result  # Text color for dark theme
 
-    def test_light_theme_specific_styling(self):
+    def test_light_theme_specific_styling(self) -> None:
         """Test light theme specific styling elements."""
         brand_config = SynetoBrandConfig(theme=SynetoTheme.LIGHT)
         redoc = SynetoReDoc(brand_config=brand_config)
@@ -344,7 +344,7 @@ class TestSynetoRedocIntegration:
             assert brand_config.background_color in result
             assert brand_config.text_color in result
 
-    def test_get_theme_config(self):
+    def test_get_theme_config(self) -> None:
         """Test getting theme configuration."""
         redoc = SynetoReDoc()
         config = redoc.get_theme_config()
@@ -360,7 +360,7 @@ class TestSynetoRedocIntegration:
         assert "text" in config["colors"]
         assert "background" in config["colors"]
 
-    def test_with_custom_theme(self):
+    def test_with_custom_theme(self) -> None:
         """Test applying custom theme configuration."""
         redoc = SynetoReDoc()
         custom_theme = {"colors": {"primary": {"main": "#custom123"}}}
@@ -373,7 +373,7 @@ class TestSynetoRedocIntegration:
         # Verify custom theme was applied
         assert redoc.redoc_config["theme"]["colors"]["primary"]["main"] == "#custom123"
 
-    def test_with_search_disabled(self):
+    def test_with_search_disabled(self) -> None:
         """Test disabling search functionality."""
         redoc = SynetoReDoc()
         result = redoc.with_search_disabled()
@@ -384,7 +384,7 @@ class TestSynetoRedocIntegration:
         # Verify search was disabled
         assert redoc.redoc_config["disableSearch"] is True
 
-    def test_theme_configuration_chaining(self):
+    def test_theme_configuration_chaining(self) -> None:
         """Test chaining theme configuration methods."""
         redoc = SynetoReDoc()
         custom_theme = {"colors": {"primary": {"main": "#chained123"}}}

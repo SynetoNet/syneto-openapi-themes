@@ -9,7 +9,7 @@ from syneto_openapi_themes.rapidoc import SynetoRapiDoc
 class TestSynetoRapiDocInitialization:
     """Test SynetoRapiDoc initialization and configuration."""
 
-    def test_default_initialization(self):
+    def test_default_initialization(self) -> None:
         """Test default RapiDoc initialization."""
         rapidoc = SynetoRapiDoc()
 
@@ -18,7 +18,7 @@ class TestSynetoRapiDocInitialization:
         assert rapidoc.brand_config is not None
         assert rapidoc.brand_config.theme == SynetoTheme.DARK
 
-    def test_custom_initialization(self):
+    def test_custom_initialization(self) -> None:
         """Test RapiDoc initialization with custom parameters."""
         brand_config = SynetoBrandConfig(theme=SynetoTheme.LIGHT, company_name="Custom Corp", primary_color="#ff0000")
 
@@ -35,7 +35,7 @@ class TestSynetoRapiDocInitialization:
         assert rapidoc.brand_config.company_name == "Custom Corp"
         assert rapidoc.brand_config.primary_color == "#ff0000"
 
-    def test_initialization_with_kwargs(self):
+    def test_initialization_with_kwargs(self) -> None:
         """Test RapiDoc initialization with additional kwargs."""
         rapidoc = SynetoRapiDoc(show_header=False, allow_try=True, show_info=True, nav_bg_color="#123456")
 
@@ -45,7 +45,7 @@ class TestSynetoRapiDocInitialization:
 class TestSynetoRapiDocRendering:
     """Test SynetoRapiDoc HTML rendering functionality."""
 
-    def test_render_calls_parent_and_injects_customizations(self):
+    def test_render_calls_parent_and_injects_customizations(self) -> None:
         """Test that render generates HTML with Syneto customizations."""
         rapidoc = SynetoRapiDoc()
         result = rapidoc.render()
@@ -57,7 +57,7 @@ class TestSynetoRapiDocRendering:
         assert "<rapi-doc" in result
         assert "spec-url=" in result
 
-    def test_render_with_custom_brand_config(self):
+    def test_render_with_custom_brand_config(self) -> None:
         """Test rendering with custom brand configuration."""
         brand_config = SynetoBrandConfig(
             primary_color="#custom123", background_color="#bg456", company_name="Test Corp"
@@ -71,7 +71,7 @@ class TestSynetoRapiDocRendering:
         # Company name now appears in logo slot alt text
         assert "Test Corp Logo" in result
 
-    def test_render_includes_css_variables(self):
+    def test_render_includes_css_variables(self) -> None:
         """Test that render includes CSS variables from brand config."""
         rapidoc = SynetoRapiDoc()
         result = rapidoc.render()
@@ -80,7 +80,7 @@ class TestSynetoRapiDocRendering:
         assert "--syneto-bg-color" in result
         assert ":root" in result
 
-    def test_render_includes_loading_css(self):
+    def test_render_includes_loading_css(self) -> None:
         """Test that render includes loading CSS."""
         rapidoc = SynetoRapiDoc()
         result = rapidoc.render()
@@ -89,7 +89,7 @@ class TestSynetoRapiDocRendering:
         assert ".syneto-error" in result
         assert "@keyframes syneto-spin" in result
 
-    def test_render_includes_javascript_enhancements(self):
+    def test_render_includes_javascript_enhancements(self) -> None:
         """Test that render includes JavaScript enhancements."""
         rapidoc = SynetoRapiDoc()
         result = rapidoc.render()
@@ -98,7 +98,7 @@ class TestSynetoRapiDocRendering:
         assert "spec-load-error" in result
         assert "Failed to Load API Documentation" in result
 
-    def test_render_with_kwargs(self):
+    def test_render_with_kwargs(self) -> None:
         """Test rendering with additional template variables."""
         rapidoc = SynetoRapiDoc()
         result = rapidoc.render(custom_var="test_value")
@@ -107,7 +107,7 @@ class TestSynetoRapiDocRendering:
         assert "<rapi-doc" in result
         assert "spec-url=" in result
 
-    def test_render_with_empty_base_html(self):
+    def test_render_with_empty_base_html(self) -> None:
         """Test rendering with empty base HTML."""
         rapidoc = SynetoRapiDoc()
         result = rapidoc.render()
@@ -116,7 +116,7 @@ class TestSynetoRapiDocRendering:
         assert "<style>" in result
         assert "<rapi-doc" in result
 
-    def test_render_with_malformed_base_html(self):
+    def test_render_with_malformed_base_html(self) -> None:
         """Test rendering with malformed base HTML."""
         rapidoc = SynetoRapiDoc()
         result = rapidoc.render()
@@ -126,7 +126,7 @@ class TestSynetoRapiDocRendering:
         assert "<rapi-doc" in result
         assert "<!DOCTYPE html>" in result
 
-    def test_improved_link_colors(self):
+    def test_improved_link_colors(self) -> None:
         """Test that links use Syneto brand colors instead of harsh blue."""
         rapidoc = SynetoRapiDoc()
         html = rapidoc.render()
@@ -145,13 +145,13 @@ class TestSynetoRapiDocRendering:
         assert "--blue: #ff53a8" in html  # New brand color for blue variable
         assert "--blue: #006aff" not in html  # Old harsh blue should be gone
 
-    def test_logo_slot_functionality(self):
+    def test_logo_slot_functionality(self) -> None:
         """Test that logo slot is correctly included in the HTML."""
         rapidoc = SynetoRapiDoc()
         html = rapidoc.render()
 
         # Check that logo slot is present
-        assert 'slot="nav-logo"' in html
+        assert 'slot="logo"' in html
         assert "data:image/svg+xml" in html
         assert 'alt="Syneto Logo"' in html
 
@@ -160,27 +160,56 @@ class TestSynetoRapiDocRendering:
 
         rapi_doc_match = re.search(r"<rapi-doc[^>]*>(.*?)</rapi-doc>", html, re.DOTALL)
         assert rapi_doc_match is not None
-        assert 'slot="nav-logo"' in rapi_doc_match.group(1)
+        assert 'slot="logo"' in rapi_doc_match.group(1)
 
-    def test_custom_logo_slot_content(self):
+    def test_custom_logo_slot_content(self) -> None:
         """Test that custom logo slot content overrides default."""
-        custom_logo = '<img slot="nav-logo" src="/custom-logo.png" alt="Custom Logo" />'
-        rapidoc = SynetoRapiDoc(logo_slot_content=custom_logo)
+        custom_logo = '<img src="/custom-logo.png" alt="Custom Logo" />'
+        rapidoc = SynetoRapiDoc(header_slot_content=custom_logo)
         html = rapidoc.render()
 
-        # Check that custom logo content is present
-        assert custom_logo in html
+        # Check that custom logo content is present in logo slot
+        assert 'slot="logo"' in html
         assert 'src="/custom-logo.png"' in html
         assert 'alt="Custom Logo"' in html
 
         # Check that default Syneto logo is not present when custom is used
         assert 'alt="Syneto Logo"' not in html
 
+    def test_app_title_in_logo_slot(self) -> None:
+        """Test that app_title is displayed in logo slot instead of company_name."""
+        # Test with app_title set
+        brand_config = SynetoBrandConfig(app_title="My Application", company_name="My Company")
+        rapidoc = SynetoRapiDoc(brand_config=brand_config)
+        html = rapidoc.render()
+
+        # Should display app_title in the logo slot
+        assert "My Application" in html
+        # Company name should only appear in alt text, not as displayed text
+        assert 'alt="My Company Logo"' in html
+
+        # Test with only company_name (no app_title)
+        brand_config = SynetoBrandConfig(company_name="My Company")
+        rapidoc = SynetoRapiDoc(brand_config=brand_config)
+        html = rapidoc.render()
+
+        # Should display company_name when app_title is not set
+        assert "My Company" in html
+        assert 'alt="My Company Logo"' in html
+
+        # Test default behavior (no app_title, default company_name)
+        rapidoc = SynetoRapiDoc()
+        html = rapidoc.render()
+
+        # Should display default company name
+        assert "Syneto" in html
+        assert 'alt="Syneto Logo"' in html
+
 
 class TestSynetoRapiDocCustomizations:
     """Test SynetoRapiDoc customization injection."""
 
-    def test_inject_syneto_customizations_with_minimal_html(self):
+    def test_inject_syneto_customizations_with_minimal_html(self) -> None:
         """Test customization injection with minimal HTML."""
         rapidoc = SynetoRapiDoc()
         base_html = "<html><body>Test</body></html>"
@@ -191,7 +220,7 @@ class TestSynetoRapiDocCustomizations:
         assert "rapi-doc" in result
         assert rapidoc.brand_config.primary_color in result
 
-    def test_inject_syneto_customizations_preserves_original_content(self):
+    def test_inject_syneto_customizations_preserves_original_content(self) -> None:
         """Test that customization injection preserves original HTML content."""
         rapidoc = SynetoRapiDoc()
         base_html = "<html><body><div id='original'>Original Content</div></body></html>"
@@ -201,7 +230,7 @@ class TestSynetoRapiDocCustomizations:
         assert "Original Content" in result
         assert "<div id='original'>" in result
 
-    def test_inject_syneto_customizations_includes_scrollbar_styling(self):
+    def test_inject_syneto_customizations_includes_scrollbar_styling(self) -> None:
         """Test that customizations include scrollbar styling."""
         rapidoc = SynetoRapiDoc()
         base_html = "<html><body>Test</body></html>"
@@ -212,7 +241,7 @@ class TestSynetoRapiDocCustomizations:
         assert "::-webkit-scrollbar-thumb" in result
         assert "::-webkit-scrollbar-track" in result
 
-    def test_inject_syneto_customizations_includes_error_handling(self):
+    def test_inject_syneto_customizations_includes_error_handling(self) -> None:
         """Test that customizations include error handling JavaScript."""
         rapidoc = SynetoRapiDoc()
         base_html = "<html><body>Test</body></html>"
@@ -223,7 +252,7 @@ class TestSynetoRapiDocCustomizations:
         assert "Failed to Load API Documentation" in result
         assert "setTimeout" in result
 
-    def test_inject_customizations_without_body_tag(self):
+    def test_inject_customizations_without_body_tag(self) -> None:
         """Test customization injection when HTML doesn't contain </body> tag."""
         rapidoc = SynetoRapiDoc()
         # HTML without </body> tag to test the else branch
@@ -245,14 +274,14 @@ class TestSynetoRapiDocCustomizations:
 class TestSynetoRapiDocAuthentication:
     """Test SynetoRapiDoc authentication configuration."""
 
-    def test_get_authentication_config_returns_dict(self):
+    def test_get_authentication_config_returns_dict(self) -> None:
         """Test that authentication config returns a dictionary."""
         rapidoc = SynetoRapiDoc()
         config = rapidoc.get_authentication_config()
 
         assert isinstance(config, dict)
 
-    def test_get_authentication_config_includes_jwt_support(self):
+    def test_get_authentication_config_includes_jwt_support(self) -> None:
         """Test that authentication config includes JWT support."""
         rapidoc = SynetoRapiDoc()
         config = rapidoc.get_authentication_config()
@@ -262,7 +291,7 @@ class TestSynetoRapiDocAuthentication:
         assert "jwt_token_prefix" in config
         assert config["jwt_token_prefix"] == "Bearer "
 
-    def test_get_authentication_config_includes_api_key_support(self):
+    def test_get_authentication_config_includes_api_key_support(self) -> None:
         """Test that authentication config includes API key support."""
         rapidoc = SynetoRapiDoc()
         config = rapidoc.get_authentication_config()
@@ -272,7 +301,7 @@ class TestSynetoRapiDocAuthentication:
         assert "api_key_location" in config
         assert config["api_key_location"] == "header"
 
-    def test_get_authentication_config_with_custom_brand(self):
+    def test_get_authentication_config_with_custom_brand(self) -> None:
         """Test authentication config with custom brand configuration."""
         brand_config = SynetoBrandConfig(primary_color="#custom")
         rapidoc = SynetoRapiDoc(brand_config=brand_config)
@@ -288,14 +317,14 @@ class TestSynetoRapiDocAuthentication:
 class TestSynetoRapiDocEdgeCases:
     """Test SynetoRapiDoc edge cases and error conditions."""
 
-    def test_initialization_with_none_brand_config(self):
+    def test_initialization_with_none_brand_config(self) -> None:
         """Test initialization with explicitly None brand config."""
         rapidoc = SynetoRapiDoc(brand_config=None)
 
         assert rapidoc.brand_config is not None
         assert rapidoc.brand_config.theme == SynetoTheme.DARK
 
-    def test_inject_customizations_with_special_characters(self):
+    def test_inject_customizations_with_special_characters(self) -> None:
         """Test customization injection with special characters in brand config."""
         brand_config = SynetoBrandConfig(company_name="Test & Co. <script>", primary_color="#ff0000")
 
@@ -312,7 +341,7 @@ class TestSynetoRapiDocEdgeCases:
 class TestSynetoRapiDocIntegration:
     """Test SynetoRapiDoc integration scenarios."""
 
-    def test_full_rendering_workflow(self):
+    def test_full_rendering_workflow(self) -> None:
         """Test complete rendering workflow from initialization to final HTML."""
         brand_config = SynetoBrandConfig(
             theme=SynetoTheme.LIGHT, primary_color="#test123", company_name="Integration Test Corp"
@@ -330,7 +359,7 @@ class TestSynetoRapiDocIntegration:
         assert "rapi-doc spec-url" in result
         assert "/test/openapi.json" in result
 
-    def test_theme_consistency_across_components(self):
+    def test_theme_consistency_across_components(self) -> None:
         """Test that theme settings are consistent across all components."""
         brand_config = SynetoBrandConfig(theme=SynetoTheme.LIGHT)
         rapidoc = SynetoRapiDoc(brand_config=brand_config)
@@ -342,7 +371,7 @@ class TestSynetoRapiDocIntegration:
         assert brand_config.background_color in result
         assert brand_config.text_color in result
 
-    def test_with_jwt_auth(self):
+    def test_with_jwt_auth(self) -> None:
         """Test configuring JWT authentication."""
         rapidoc = SynetoRapiDoc()
         result = rapidoc.with_jwt_auth("/custom/token")
@@ -354,7 +383,7 @@ class TestSynetoRapiDocIntegration:
         assert rapidoc.rapidoc_config["allow_authentication"] == "true"
         assert rapidoc.rapidoc_config["persist_auth"] == "true"
 
-    def test_with_api_key_auth(self):
+    def test_with_api_key_auth(self) -> None:
         """Test configuring API key authentication."""
         rapidoc = SynetoRapiDoc()
         result = rapidoc.with_api_key_auth("Custom-API-Key")
@@ -366,7 +395,7 @@ class TestSynetoRapiDocIntegration:
         assert rapidoc.rapidoc_config["allow_authentication"] == "true"
         assert rapidoc.rapidoc_config["api_key_name"] == "Custom-API-Key"
 
-    def test_authentication_chaining(self):
+    def test_authentication_chaining(self) -> None:
         """Test chaining authentication configuration methods."""
         rapidoc = SynetoRapiDoc()
 
@@ -380,7 +409,7 @@ class TestSynetoRapiDocIntegration:
         assert rapidoc.rapidoc_config["persist_auth"] == "true"
         assert rapidoc.rapidoc_config["api_key_name"] == "X-Custom-Key"
 
-    def test_rapidoc_config_attributes_in_html(self):
+    def test_rapidoc_config_attributes_in_html(self) -> None:
         """Test that rapidoc_config is properly included as HTML attributes."""
         brand_config = SynetoBrandConfig(theme=SynetoTheme.DARK, primary_color="#ff0000")
         rapidoc = SynetoRapiDoc(brand_config=brand_config)
@@ -399,7 +428,7 @@ class TestSynetoRapiDocIntegration:
         assert "<rapi-doc" in html
         assert "spec-url=" in html
 
-    def test_kwargs_override_hardcoded_values(self):
+    def test_kwargs_override_hardcoded_values(self) -> None:
         """Test that kwargs can override hardcoded rapidoc_config values."""
         rapidoc = SynetoRapiDoc(
             show_header="false",  # Override default "true"
@@ -425,7 +454,7 @@ class TestSynetoRapiDocIntegration:
         assert rapidoc.rapidoc_config["allow_authentication"] == "false"
         assert rapidoc.rapidoc_config["response_area_height"] == "600px"
 
-    def test_parent_class_params_vs_rapidoc_config(self):
+    def test_parent_class_params_vs_rapidoc_config(self) -> None:
         """Test that parent class parameters are properly separated from RapiDoc config."""
         rapidoc = SynetoRapiDoc(
             js_url="https://custom-cdn.com/rapidoc.js",  # Parent class param
@@ -449,7 +478,7 @@ class TestSynetoRapiDocIntegration:
         assert rapidoc.favicon_url == "/custom-favicon.ico"
         assert rapidoc.head_css_urls == ["https://custom.css"]
 
-    def test_boolean_values_converted_to_lowercase_strings(self):
+    def test_boolean_values_converted_to_lowercase_strings(self) -> None:
         """Test that Python boolean values are converted to lowercase strings in HTML attributes."""
         rapidoc = SynetoRapiDoc(
             allow_spec_url_load=False,

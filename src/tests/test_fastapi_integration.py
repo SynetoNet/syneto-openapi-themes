@@ -22,7 +22,7 @@ from syneto_openapi_themes.fastapi_integration import (
 class TestFastAPIIntegrationFunctions:
     """Test FastAPI integration functions."""
 
-    def test_add_syneto_rapidoc_default_params(self):
+    def test_add_syneto_rapidoc_default_params(self) -> None:
         """Test adding RapiDoc with default parameters."""
         app = FastAPI(title="Test API")
 
@@ -38,14 +38,14 @@ class TestFastAPIIntegrationFunctions:
                 openapi_url="/openapi.json",
                 title="Test API - API Documentation",
                 brand_config=None,
-                logo_slot_content=None,
+                header_slot_content=None,
             )
 
             # Verify route was added (FastAPI may add default docs route too)
             routes = [route for route in app.routes if hasattr(route, "path") and route.path == "/docs"]
             assert len(routes) >= 1
 
-    def test_add_syneto_rapidoc_custom_params(self):
+    def test_add_syneto_rapidoc_custom_params(self) -> None:
         """Test adding RapiDoc with custom parameters."""
         app = FastAPI(title="Custom API")
         brand_config = SynetoBrandConfig(primary_color="#custom")
@@ -69,7 +69,7 @@ class TestFastAPIIntegrationFunctions:
                 openapi_url="/custom/openapi.json",
                 title="Custom Title",
                 brand_config=brand_config,
-                logo_slot_content=None,
+                header_slot_content=None,
                 custom_param="test",
             )
 
@@ -77,7 +77,7 @@ class TestFastAPIIntegrationFunctions:
             routes = [route for route in app.routes if hasattr(route, "path") and route.path == "/custom-docs"]
             assert len(routes) == 1
 
-    def test_add_syneto_swagger_default_params(self):
+    def test_add_syneto_swagger_default_params(self) -> None:
         """Test adding SwaggerUI with default parameters."""
         app = FastAPI(title="Test API")
 
@@ -97,7 +97,7 @@ class TestFastAPIIntegrationFunctions:
             routes = [route for route in app.routes if hasattr(route, "path") and route.path == "/swagger"]
             assert len(routes) == 1
 
-    def test_add_syneto_swagger_custom_params(self):
+    def test_add_syneto_swagger_custom_params(self) -> None:
         """Test adding SwaggerUI with custom parameters."""
         app = FastAPI(title="Custom API")
         brand_config = SynetoBrandConfig(theme=SynetoTheme.LIGHT)
@@ -120,7 +120,7 @@ class TestFastAPIIntegrationFunctions:
                 openapi_url="/api/openapi.json", title="Swagger Documentation", brand_config=brand_config
             )
 
-    def test_add_syneto_redoc_default_params(self):
+    def test_add_syneto_redoc_default_params(self) -> None:
         """Test adding ReDoc with default parameters."""
         app = FastAPI(title="Test API")
 
@@ -140,7 +140,7 @@ class TestFastAPIIntegrationFunctions:
             routes = [route for route in app.routes if hasattr(route, "path") and route.path == "/redoc"]
             assert len(routes) >= 1
 
-    def test_add_syneto_elements_default_params(self):
+    def test_add_syneto_elements_default_params(self) -> None:
         """Test adding Elements with default parameters."""
         app = FastAPI(title="Test API")
 
@@ -160,7 +160,7 @@ class TestFastAPIIntegrationFunctions:
             routes = [route for route in app.routes if hasattr(route, "path") and route.path == "/elements"]
             assert len(routes) == 1
 
-    def test_add_syneto_scalar_default_params(self):
+    def test_add_syneto_scalar_default_params(self) -> None:
         """Test adding Scalar with default parameters."""
         app = FastAPI(title="Test API")
 
@@ -180,7 +180,7 @@ class TestFastAPIIntegrationFunctions:
             routes = [route for route in app.routes if hasattr(route, "path") and route.path == "/scalar"]
             assert len(routes) == 1
 
-    def test_add_all_syneto_docs_default_params(self):
+    def test_add_all_syneto_docs_default_params(self) -> None:
         """Test adding all documentation tools with default parameters."""
         app = FastAPI(title="Test API")
 
@@ -206,7 +206,7 @@ class TestFastAPIIntegrationFunctions:
                 app, openapi_url="/openapi.json", docs_url="/scalar", brand_config=None
             )
 
-    def test_add_all_syneto_docs_custom_params(self):
+    def test_add_all_syneto_docs_custom_params(self) -> None:
         """Test adding all documentation tools with custom parameters."""
         app = FastAPI(title="Custom API")
         brand_config = SynetoBrandConfig(primary_color="#custom")
@@ -250,7 +250,7 @@ class TestFastAPIIntegrationFunctions:
 class TestSynetoDocsManager:
     """Test SynetoDocsManager class."""
 
-    def test_initialization_default_params(self):
+    def test_initialization_default_params(self) -> None:
         """Test SynetoDocsManager initialization with default parameters."""
         app = FastAPI(title="Test API")
 
@@ -265,7 +265,7 @@ class TestSynetoDocsManager:
             assert manager.openapi_url == "/openapi.json"
             assert manager._docs_endpoints == {}
 
-    def test_initialization_custom_params(self):
+    def test_initialization_custom_params(self) -> None:
         """Test SynetoDocsManager initialization with custom parameters."""
         app = FastAPI(title="Custom API")
         brand_config = SynetoBrandConfig(primary_color="#custom")
@@ -277,7 +277,7 @@ class TestSynetoDocsManager:
         assert manager.openapi_url == "/custom/openapi.json"
         assert manager._docs_endpoints == {}
 
-    def test_add_rapidoc(self):
+    def test_add_rapidoc(self) -> None:
         """Test adding RapiDoc through manager."""
         app = FastAPI(title="Test API")
         manager = SynetoDocsManager(app)
@@ -300,7 +300,7 @@ class TestSynetoDocsManager:
             # Verify endpoint was registered
             assert manager._docs_endpoints["rapidoc"] == "/custom-docs"
 
-    def test_add_swagger(self):
+    def test_add_swagger(self) -> None:
         """Test adding SwaggerUI through manager."""
         app = FastAPI(title="Test API")
         manager = SynetoDocsManager(app)
@@ -319,7 +319,7 @@ class TestSynetoDocsManager:
             # Verify endpoint was registered
             assert manager._docs_endpoints["swagger"] == "/swagger-ui"
 
-    def test_add_redoc(self):
+    def test_add_redoc(self) -> None:
         """Test adding ReDoc through manager."""
         app = FastAPI(title="Test API")
         manager = SynetoDocsManager(app)
@@ -338,7 +338,7 @@ class TestSynetoDocsManager:
             # Verify endpoint was registered
             assert manager._docs_endpoints["redoc"] == "/redoc"
 
-    def test_add_elements(self):
+    def test_add_elements(self) -> None:
         """Test adding Elements through manager."""
         app = FastAPI(title="Test API")
         manager = SynetoDocsManager(app)
@@ -357,7 +357,7 @@ class TestSynetoDocsManager:
             # Verify endpoint was registered
             assert manager._docs_endpoints["elements"] == "/elements-docs"
 
-    def test_add_scalar(self):
+    def test_add_scalar(self) -> None:
         """Test adding Scalar through manager."""
         app = FastAPI(title="Test API")
         manager = SynetoDocsManager(app)
@@ -376,7 +376,7 @@ class TestSynetoDocsManager:
             # Verify endpoint was registered
             assert manager._docs_endpoints["scalar"] == "/scalar-docs"
 
-    def test_add_all(self):
+    def test_add_all(self) -> None:
         """Test adding all documentation tools through manager."""
         app = FastAPI(title="Test API")
         manager = SynetoDocsManager(app)
@@ -407,7 +407,7 @@ class TestSynetoDocsManager:
             mock_elements.assert_called_once_with(custom_param="test")
             mock_scalar.assert_called_once_with(custom_param="test")
 
-    def test_add_docs_index(self):
+    def test_add_docs_index(self) -> None:
         """Test adding documentation index page."""
         app = FastAPI(title="Test API")
         manager = SynetoDocsManager(app)
@@ -424,7 +424,7 @@ class TestSynetoDocsManager:
         routes = [route for route in app.routes if hasattr(route, "path") and route.path == "/docs-index"]
         assert len(routes) == 1
 
-    def test_render_docs_index(self):
+    def test_render_docs_index(self) -> None:
         """Test rendering documentation index page."""
         app = FastAPI(title="Test API")
         brand_config = SynetoBrandConfig(primary_color="#test123", background_color="#bg456", text_color="#text789")
@@ -450,7 +450,7 @@ class TestSynetoDocsManager:
         assert "Swagger" in result
         assert "Redoc" in result
 
-    def test_render_docs_index_empty_endpoints(self):
+    def test_render_docs_index_empty_endpoints(self) -> None:
         """Test rendering documentation index page with no endpoints."""
         app = FastAPI(title="Empty API")
         manager = SynetoDocsManager(app)
@@ -462,7 +462,7 @@ class TestSynetoDocsManager:
         assert "Empty API - API Documentation" in result
         assert "docs-grid" in result
 
-    def test_endpoints_property(self):
+    def test_endpoints_property(self) -> None:
         """Test endpoints property returns copy of endpoints."""
         app = FastAPI(title="Test API")
         manager = SynetoDocsManager(app)
@@ -480,7 +480,7 @@ class TestSynetoDocsManager:
         endpoints["new"] = "/new"
         assert "new" not in manager._docs_endpoints
 
-    def test_manager_integration_workflow(self):
+    def test_manager_integration_workflow(self) -> None:
         """Test complete workflow using manager."""
         app = FastAPI(title="Integration Test API")
         brand_config = SynetoBrandConfig(primary_color="#integration")
@@ -510,10 +510,10 @@ class TestSynetoDocsManager:
 class TestFastAPIIntegrationEdgeCases:
     """Test edge cases and error conditions."""
 
-    def test_add_docs_with_none_title(self):
+    def test_add_docs_with_none_title(self) -> None:
         """Test adding docs when app title is None."""
         app = FastAPI()  # No title provided
-        app.title = None
+        app.title = None  # type: ignore[assignment]
 
         with patch("syneto_openapi_themes.fastapi_integration.SynetoRapiDoc") as mock_rapidoc:
             mock_instance = Mock()
@@ -524,10 +524,13 @@ class TestFastAPIIntegrationEdgeCases:
 
             # Should handle None title gracefully
             mock_rapidoc.assert_called_once_with(
-                openapi_url="/openapi.json", title="None - API Documentation", brand_config=None, logo_slot_content=None
+                openapi_url="/openapi.json",
+                title="None - API Documentation",
+                brand_config=None,
+                header_slot_content=None,
             )
 
-    def test_manager_with_custom_openapi_url(self):
+    def test_manager_with_custom_openapi_url(self) -> None:
         """Test manager with custom OpenAPI URL."""
         app = FastAPI(title="Custom API")
         manager = SynetoDocsManager(app, openapi_url="/v2/openapi.json")
@@ -540,7 +543,7 @@ class TestFastAPIIntegrationEdgeCases:
                 app, openapi_url="/v2/openapi.json", docs_url="/docs", brand_config=manager.brand_config
             )
 
-    def test_docs_index_with_special_characters_in_title(self):
+    def test_docs_index_with_special_characters_in_title(self) -> None:
         """Test docs index with special characters in app title."""
         app = FastAPI(title="Test & <Special> API")
         manager = SynetoDocsManager(app)
@@ -550,7 +553,7 @@ class TestFastAPIIntegrationEdgeCases:
         # Verify special characters are handled properly
         assert "Test &amp; &lt;Special&gt; API" in result or "Test & <Special> API" in result
 
-    def test_manager_endpoints_isolation(self):
+    def test_manager_endpoints_isolation(self) -> None:
         """Test that different manager instances have isolated endpoints."""
         app1 = FastAPI(title="API 1")
         app2 = FastAPI(title="API 2")
@@ -570,7 +573,7 @@ class TestFastAPIIntegrationEdgeCases:
 class TestFastAPIIntegrationWithTestClient:
     """Test FastAPI integration with actual HTTP requests using TestClient."""
 
-    def test_fastapi_integration_with_test_client_rapidoc(self):
+    def test_fastapi_integration_with_test_client_rapidoc(self) -> None:
         """Test RapiDoc endpoint returns HTML response via TestClient."""
         app = FastAPI(title="Test API", docs_url=None, redoc_url=None)  # Disable default docs
         add_syneto_rapidoc(app, docs_url="/rapidoc")
@@ -584,7 +587,7 @@ class TestFastAPIIntegrationWithTestClient:
         # Just verify it's HTML content - the actual implementation might vary
         assert "<html" in response.text.lower()
 
-    def test_fastapi_integration_with_test_client_swagger(self):
+    def test_fastapi_integration_with_test_client_swagger(self) -> None:
         """Test SwaggerUI endpoint returns HTML response via TestClient."""
         app = FastAPI(title="Test API")
         add_syneto_swagger(app, docs_url="/swagger")
@@ -597,7 +600,7 @@ class TestFastAPIIntegrationWithTestClient:
         assert "<!DOCTYPE html>" in response.text or "<!doctype html>" in response.text
         assert "swagger" in response.text.lower()
 
-    def test_fastapi_integration_with_test_client_redoc(self):
+    def test_fastapi_integration_with_test_client_redoc(self) -> None:
         """Test ReDoc endpoint returns HTML response via TestClient."""
         app = FastAPI(title="Test API", docs_url=None, redoc_url=None)  # Disable default docs
         add_syneto_redoc(app, docs_url="/redoc-custom")
@@ -610,7 +613,7 @@ class TestFastAPIIntegrationWithTestClient:
         assert "<!DOCTYPE html>" in response.text or "<!doctype html>" in response.text
         assert "redoc" in response.text.lower()
 
-    def test_fastapi_integration_with_test_client_elements(self):
+    def test_fastapi_integration_with_test_client_elements(self) -> None:
         """Test Elements endpoint returns HTML response via TestClient."""
         app = FastAPI(title="Test API")
         add_syneto_elements(app, docs_url="/elements")
@@ -623,7 +626,7 @@ class TestFastAPIIntegrationWithTestClient:
         assert "<!DOCTYPE html>" in response.text or "<!doctype html>" in response.text
         assert "elements" in response.text.lower()
 
-    def test_fastapi_integration_with_test_client_scalar(self):
+    def test_fastapi_integration_with_test_client_scalar(self) -> None:
         """Test Scalar endpoint returns HTML response via TestClient."""
         app = FastAPI(title="Test API")
         add_syneto_scalar(app, docs_url="/scalar")
@@ -636,7 +639,7 @@ class TestFastAPIIntegrationWithTestClient:
         assert "<!DOCTYPE html>" in response.text or "<!doctype html>" in response.text
         assert "scalar" in response.text.lower()
 
-    def test_docs_manager_index_with_test_client(self):
+    def test_docs_manager_index_with_test_client(self) -> None:
         """Test docs manager index endpoint returns HTML response via TestClient."""
         app = FastAPI(title="Test API")
         manager = SynetoDocsManager(app)

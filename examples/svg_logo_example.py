@@ -54,13 +54,13 @@ add_syneto_rapidoc(app, brand_config=syneto_brand_config, docs_url="/docs-syneto
 
 # Example API endpoints
 @app.get("/")
-def read_root():
+def read_root() -> dict[str, str]:
     """Welcome endpoint."""
     return {"message": "Welcome to the Syneto-branded API!"}
 
 
 @app.get("/health")
-def health_check():
+def health_check() -> dict[str, str]:
     """Health check endpoint."""
     return {"status": "healthy"}
 

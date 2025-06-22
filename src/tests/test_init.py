@@ -12,7 +12,7 @@ import syneto_openapi_themes
 class TestModuleImports:
     """Test module import functionality."""
 
-    def test_core_imports_available(self):
+    def test_core_imports_available(self) -> None:
         """Test that core imports are available."""
         from syneto_openapi_themes import (
             SynetoBrandConfig,
@@ -28,7 +28,7 @@ class TestModuleImports:
         assert get_default_brand_config is not None
         assert get_light_brand_config is not None
 
-    def test_documentation_classes_available(self):
+    def test_documentation_classes_available(self) -> None:
         """Test that documentation classes are available."""
         from syneto_openapi_themes import (
             SynetoElements,
@@ -44,13 +44,13 @@ class TestModuleImports:
         assert SynetoElements is not None
         assert SynetoScalar is not None
 
-    def test_elements_available(self):
+    def test_elements_available(self) -> None:
         """Test that Elements class is available."""
         from syneto_openapi_themes import SynetoElements
 
         assert SynetoElements is not None
 
-    def test_version_available(self):
+    def test_version_available(self) -> None:
         """Test that version information is available."""
         assert hasattr(syneto_openapi_themes, "__version__")
         assert hasattr(syneto_openapi_themes, "__author__")
@@ -60,7 +60,7 @@ class TestModuleImports:
         assert syneto_openapi_themes.__author__ == "Syneto"
         assert syneto_openapi_themes.__email__ == "dev@syneto.net"
 
-    def test_fastapi_conditional_import_success(self):
+    def test_fastapi_conditional_import_success(self) -> None:
         """Test FastAPI imports when available."""
         try:
             from syneto_openapi_themes import (
@@ -85,7 +85,7 @@ class TestModuleImports:
             # FastAPI not available, which is fine
             pass
 
-    def test_fastapi_conditional_import_failure(self):
+    def test_fastapi_conditional_import_failure(self) -> None:
         """Test behavior when FastAPI is not available."""
         # Mock FastAPI import failure
         with patch.dict(sys.modules, {"fastapi": None}):
@@ -99,9 +99,9 @@ class TestModuleImports:
 
             # FastAPI integration should be None when not available
             assert syneto_openapi_themes.SynetoDocsManager is None
-            assert syneto_openapi_themes.add_all_syneto_docs is None
+            assert syneto_openapi_themes.add_all_syneto_docs is None  # type: ignore[unreachable]
 
-    def test_core_functionality_without_fastapi(self):
+    def test_core_functionality_without_fastapi(self) -> None:
         """Test that core functionality works without FastAPI."""
         from syneto_openapi_themes import (
             get_default_brand_config,
@@ -134,7 +134,7 @@ class TestModuleImports:
         assert elements is not None
         assert scalar is not None
 
-    def test_brand_config_integration(self):
+    def test_brand_config_integration(self) -> None:
         """Test brand configuration integration."""
         from syneto_openapi_themes import SynetoBrandConfig, SynetoElements
 
@@ -147,7 +147,7 @@ class TestModuleImports:
         assert elements.brand_config.primary_color == "#ff0000"
         assert elements.brand_config.background_color == "#000000"
 
-    def test_conditional_imports_available(self):
+    def test_conditional_imports_available(self) -> None:
         """Test that conditional imports work when dependencies are available."""
         try:
             from syneto_openapi_themes import (
@@ -178,18 +178,18 @@ class TestModuleImports:
 class TestModuleStructure:
     """Test module structure and organization."""
 
-    def test_all_exports_defined(self):
+    def test_all_exports_defined(self) -> None:
         """Test that __all__ is properly defined."""
         assert hasattr(syneto_openapi_themes, "__all__")
         assert isinstance(syneto_openapi_themes.__all__, list)
         assert len(syneto_openapi_themes.__all__) > 0
 
-    def test_all_exports_importable(self):
+    def test_all_exports_importable(self) -> None:
         """Test that all items in __all__ are importable."""
         for item in syneto_openapi_themes.__all__:
             assert hasattr(syneto_openapi_themes, item), f"Missing export: {item}"
 
-    def test_circular_imports(self):
+    def test_circular_imports(self) -> None:
         """Test that there are no circular import issues."""
         try:
             # Test that we can import the main module without circular import issues
@@ -200,7 +200,7 @@ class TestModuleStructure:
         except ImportError as e:
             pytest.fail(f"Circular import detected: {e}")
 
-    def test_namespace_pollution(self):
+    def test_namespace_pollution(self) -> None:
         """Test that the module doesn't pollute the namespace."""
         # Check that only intended attributes are public
         public_attrs = [attr for attr in dir(syneto_openapi_themes) if not attr.startswith("_")]
@@ -216,7 +216,7 @@ class TestModuleStructure:
 class TestVersionCompatibility:
     """Test version and compatibility information."""
 
-    def test_version_format(self):
+    def test_version_format(self) -> None:
         """Test that version follows semantic versioning."""
         version = syneto_openapi_themes.__version__
         parts = version.split(".")
@@ -224,7 +224,7 @@ class TestVersionCompatibility:
         for part in parts:
             assert part.isdigit(), f"Version part '{part}' should be numeric"
 
-    def test_metadata_types(self):
+    def test_metadata_types(self) -> None:
         """Test that metadata has correct types."""
         assert isinstance(syneto_openapi_themes.__version__, str)
         assert isinstance(syneto_openapi_themes.__author__, str)
@@ -234,13 +234,13 @@ class TestVersionCompatibility:
 class TestErrorHandling:
     """Test error handling and edge cases."""
 
-    def test_graceful_import_failure_handling(self):
+    def test_graceful_import_failure_handling(self) -> None:
         """Test that import failures are handled gracefully."""
         # This test ensures the module can be imported even if dependencies fail
         assert hasattr(syneto_openapi_themes, "get_default_brand_config")
         assert hasattr(syneto_openapi_themes, "SynetoBrandConfig")
 
-    def test_module_reload_safety(self):
+    def test_module_reload_safety(self) -> None:
         """Test that the module can be safely reloaded."""
         # Get initial state
         initial_version = syneto_openapi_themes.__version__
@@ -254,7 +254,7 @@ class TestErrorHandling:
         new_config = syneto_openapi_themes.get_default_brand_config()
         assert type(config) is type(new_config)
 
-    def test_import_error_resilience(self):
+    def test_import_error_resilience(self) -> None:
         """Test resilience to import errors."""
         # Test that core functionality works even if optional dependencies fail
         from syneto_openapi_themes import SynetoBrandConfig, get_default_brand_config

@@ -19,13 +19,13 @@ from syneto_openapi_themes.brand import (
 class TestSynetoColors:
     """Test the SynetoColors class."""
 
-    def test_primary_colors(self):
+    def test_primary_colors(self) -> None:
         """Test primary color constants."""
         assert SynetoColors.PRIMARY_MAGENTA == "#ad0f6c"
         assert SynetoColors.PRIMARY_DARK == "#07080d"
         assert SynetoColors.PRIMARY_LIGHT == "#fcfdfe"
 
-    def test_accent_colors(self):
+    def test_accent_colors(self) -> None:
         """Test accent color constants."""
         assert SynetoColors.ACCENT_RED == "#f01932"
         assert SynetoColors.ACCENT_BLUE == "#006aff"  # Updated to Color Chart v4.0 - Info Color
@@ -36,7 +36,7 @@ class TestSynetoColors:
 class TestSynetoTheme:
     """Test the SynetoTheme enum."""
 
-    def test_theme_values(self):
+    def test_theme_values(self) -> None:
         """Test theme enum values."""
         assert SynetoTheme.DARK.value == "dark"
         assert SynetoTheme.LIGHT.value == "light"
@@ -46,7 +46,7 @@ class TestSynetoTheme:
 class TestSvgToDataUri:
     """Test the svg_to_data_uri function."""
 
-    def test_valid_svg_content(self):
+    def test_valid_svg_content(self) -> None:
         """Test converting valid SVG content to data URI."""
         svg_content = '<?xml version="1.0" encoding="UTF-8"?>'
         svg_content += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
@@ -58,7 +58,7 @@ class TestSvgToDataUri:
         assert "%3C?xml" in result  # URL encoded <?xml
         assert "%2523ad0f6c" in result  # URL encoded #ad0f6c (# becomes %23, then % becomes %25)
 
-    def test_svg_without_xml_declaration(self):
+    def test_svg_without_xml_declaration(self) -> None:
         """Test converting SVG content without XML declaration."""
         svg_content = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
         svg_content += '<circle cx="50" cy="50" r="40" fill="#ad0f6c"/>'
@@ -68,7 +68,7 @@ class TestSvgToDataUri:
         assert result.startswith("data:image/svg+xml;utf8,")
         assert "%3Csvg" in result  # URL encoded <svg
 
-    def test_invalid_svg_content(self):
+    def test_invalid_svg_content(self) -> None:
         """Test error handling for invalid SVG content."""
         invalid_content = "This is not SVG content"
 
@@ -79,7 +79,7 @@ class TestSvgToDataUri:
 class TestSynetoBrandConfig:
     """Test the SynetoBrandConfig class."""
 
-    def test_default_initialization(self):
+    def test_default_initialization(self) -> None:
         """Test default brand config initialization."""
         config = SynetoBrandConfig()
 
@@ -90,7 +90,7 @@ class TestSynetoBrandConfig:
         assert config.custom_css_urls == []
         assert config.custom_js_urls == []
 
-    def test_custom_initialization(self):
+    def test_custom_initialization(self) -> None:
         """Test custom brand config initialization."""
         config = SynetoBrandConfig(company_name="Custom Company", theme=SynetoTheme.LIGHT, primary_color="#ff0000")
 
@@ -98,7 +98,24 @@ class TestSynetoBrandConfig:
         assert config.theme == SynetoTheme.LIGHT
         assert config.primary_color == "#ff0000"
 
-    def test_to_rapidoc_attributes(self):
+    def test_app_title_parameter(self) -> None:
+        """Test app_title parameter functionality."""
+        # Test with app_title set
+        config = SynetoBrandConfig(app_title="My Application")
+        assert config.app_title == "My Application"
+        assert config.company_name == "Syneto"  # Should still have default company name
+
+        # Test with both app_title and company_name set
+        config = SynetoBrandConfig(app_title="My App", company_name="My Company")
+        assert config.app_title == "My App"
+        assert config.company_name == "My Company"
+
+        # Test default (app_title should be None)
+        config = SynetoBrandConfig()
+        assert config.app_title is None
+        assert config.company_name == "Syneto"
+
+    def test_to_rapidoc_attributes(self) -> None:
         """Test conversion to RapiDoc attributes."""
         config = SynetoBrandConfig()
         attrs = config.to_rapidoc_attributes()
@@ -108,7 +125,7 @@ class TestSynetoBrandConfig:
         assert attrs["bg-color"] == SynetoColors.NEUTRAL_DARKEST  # Updated to new color constant
         assert "logo" in attrs
 
-    def test_to_css_variables(self):
+    def test_to_css_variables(self) -> None:
         """Test conversion to CSS variables."""
         config = SynetoBrandConfig()
         css = config.to_css_variables()
@@ -117,7 +134,7 @@ class TestSynetoBrandConfig:
         assert SynetoColors.BRAND_PRIMARY in css  # Updated to new color constant
         assert ":root" in css
 
-    def test_get_loading_css(self):
+    def test_get_loading_css(self) -> None:
         """Test loading CSS generation."""
         config = SynetoBrandConfig()
         css = config.get_loading_css()
@@ -130,7 +147,7 @@ class TestSynetoBrandConfig:
 class TestBrandConfigHelpers:
     """Test brand config helper functions."""
 
-    def test_get_default_brand_config(self):
+    def test_get_default_brand_config(self) -> None:
         """Test default brand config helper."""
         config = get_default_brand_config()
 
@@ -138,7 +155,7 @@ class TestBrandConfigHelpers:
         assert config.theme == SynetoTheme.DARK
         assert config.company_name == "Syneto"
 
-    def test_get_light_brand_config(self):
+    def test_get_light_brand_config(self) -> None:
         """Test light brand config helper."""
         config = get_light_brand_config()
 
@@ -147,7 +164,7 @@ class TestBrandConfigHelpers:
         assert config.background_color == SynetoColors.BG_LIGHTEST  # Updated to new color constant
         assert config.text_color == SynetoColors.NEUTRAL_DARKEST  # Updated to new color constant
 
-    def test_get_brand_config_with_custom_logo(self):
+    def test_get_brand_config_with_custom_logo(self) -> None:
         """Test custom logo brand config helper."""
         logo_url = "/static/my-logo.svg"
         config = get_brand_config_with_custom_logo(logo_url)
@@ -156,7 +173,7 @@ class TestBrandConfigHelpers:
         assert config.logo_url == logo_url
         assert config.theme == SynetoTheme.DARK  # Default theme
 
-    def test_get_brand_config_with_custom_logo_and_kwargs(self):
+    def test_get_brand_config_with_custom_logo_and_kwargs(self) -> None:
         """Test custom logo brand config helper with additional kwargs."""
         logo_url = "/static/my-logo.svg"
         config = get_brand_config_with_custom_logo(logo_url, theme=SynetoTheme.LIGHT, company_name="My Company")
@@ -166,7 +183,7 @@ class TestBrandConfigHelpers:
         assert config.theme == SynetoTheme.LIGHT
         assert config.company_name == "My Company"
 
-    def test_get_brand_config_with_svg_logo(self):
+    def test_get_brand_config_with_svg_logo(self) -> None:
         """Test SVG logo brand config helper."""
         svg_content = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
         svg_content += '<circle cx="50" cy="50" r="40" fill="#ad0f6c"/>'
@@ -177,7 +194,7 @@ class TestBrandConfigHelpers:
         assert config.logo_svg == svg_content
         assert config.theme == SynetoTheme.DARK  # Default theme
 
-    def test_get_brand_config_with_svg_logo_and_kwargs(self):
+    def test_get_brand_config_with_svg_logo_and_kwargs(self) -> None:
         """Test SVG logo brand config helper with additional kwargs."""
         svg_content = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
         svg_content += '<circle cx="50" cy="50" r="40" fill="#ad0f6c"/>'

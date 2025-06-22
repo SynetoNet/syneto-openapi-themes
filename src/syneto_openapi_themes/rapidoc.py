@@ -21,7 +21,7 @@ class SynetoRapiDoc(RapiDoc):
         openapi_url: str = "/openapi.json",
         title: str = "API Documentation",
         brand_config: Optional[SynetoBrandConfig] = None,
-        logo_slot_content: Optional[str] = None,
+        header_slot_content: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -31,7 +31,7 @@ class SynetoRapiDoc(RapiDoc):
             openapi_url: URL to the OpenAPI JSON schema
             title: Title for the documentation page
             brand_config: Syneto brand configuration
-            logo_slot_content: HTML content for the nav-logo slot (overrides brand logo)
+            header_slot_content: HTML content for the custom header slot (overrides brand logo/header)
             **kwargs: Additional RapiDoc configuration options. These can override any
                      of the default RapiDoc settings. Common overridable parameters include:
                      - render_style: "read" | "view" | "focused" (default: "read")
@@ -43,7 +43,7 @@ class SynetoRapiDoc(RapiDoc):
                      - And many more RapiDoc attributes. See RapiDoc documentation for full list.
         """
         self.brand_config = brand_config or get_default_brand_config()
-        self.logo_slot_content = logo_slot_content
+        self.header_slot_content = header_slot_content
 
         # Separate parent class parameters from RapiDoc configuration
         parent_class_params = {"js_url", "head_js_urls", "tail_js_urls", "head_css_urls", "favicon_url"}
@@ -57,8 +57,8 @@ class SynetoRapiDoc(RapiDoc):
         # Store RapiDoc-specific configuration for use in rendering
         # Note: rapidoc_kwargs will override any default values below
 
-        # Get the properly processed logo value (handles SVG conversion)
-        rapidoc_attrs = self.brand_config.to_rapidoc_attributes()
+        # Store RapiDoc-specific configuration for use in rendering
+        # Note: rapidoc_kwargs will override any default values below
 
         self.rapidoc_config = {
             # Brand-based configuration (from SynetoBrandConfig)
@@ -75,7 +75,7 @@ class SynetoRapiDoc(RapiDoc):
             "nav_accent_text_color": self.brand_config.nav_accent_text_color,
             "regular_font": self.brand_config.regular_font,
             "mono_font": self.brand_config.mono_font,
-            "logo": rapidoc_attrs["logo"],  # Use the properly processed logo value
+            # Note: We don't set "logo" here since we use slot="logo" to replace it completely
             # Layout and presentation defaults (can be overridden by kwargs)
             "render_style": "read",
             "schema_style": "table",
@@ -469,19 +469,38 @@ class SynetoRapiDoc(RapiDoc):
 
         attributes_str = " ".join(rapidoc_attributes)
 
-        # Add logo slot content if provided
+        # Create logo slot content to replace the RapiDoc logo completely
         logo_slot = ""
-        if self.logo_slot_content:
-            logo_slot = self.logo_slot_content
+        if self.header_slot_content:
+            # If custom header slot content is provided, use it as the logo replacement
+            logo_slot = (
+                f'<div slot="logo" style="display: flex; align-items: center; margin: 0 16px;">'
+                f"{self.header_slot_content}</div>"
+            )
         elif self.brand_config.logo_svg:
-            # Create an SVG logo slot using the brand config SVG
+            # Create a logo replacement with the SVG logo using the brand config SVG
             from .brand import svg_to_data_uri
 
+            # Use the original SVG - it's already white on transparent
             svg_data_uri = svg_to_data_uri(self.brand_config.logo_svg)
-            logo_slot = '<img slot="nav-logo" '
-            logo_slot += f'src="{svg_data_uri}" '
-            logo_slot += f'alt="{self.brand_config.company_name} Logo" '
-            logo_slot += 'style="max-height: 40px; max-width: 200px;" />'
+
+            # Use app_title if available, otherwise fall back to company_name
+            display_name = self.brand_config.app_title or self.brand_config.company_name
+
+            logo_slot = (
+                """<div slot="logo" style="display: flex; align-items: center; """
+                + f"""padding: 4px 16px; height: 48px;">
+                <img src="{svg_data_uri}"
+                     alt="{self.brand_config.company_name} Logo"
+                     style="height: 100%; width: auto; margin-right: 12px; """
+                + f"""object-fit: contain; filter: invert(1) !important;" />
+                <span style="color: {self.brand_config.text_color}; """
+                + f"""font-family: {self.brand_config.regular_font}; """
+                + f"""font-weight: 600; font-size: 18px;">
+                    {display_name}
+                </span>
+            </div>"""
+            )
 
         html = f"""
         <!DOCTYPE html>

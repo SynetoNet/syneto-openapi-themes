@@ -278,6 +278,41 @@ config = SynetoBrandConfig(
 )
 ```
 
+#### Custom Header Slot (Advanced)
+
+For complete control over the header appearance, you can provide custom HTML content that will be placed in RapiDoc's header slot:
+
+```python
+from syneto_openapi_themes import add_syneto_rapidoc
+
+# Custom header with logo and additional elements
+custom_header = '''
+<div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+    <div style="display: flex; align-items: center;">
+        <img src="/static/logo.svg" alt="My API" style="height: 40px; margin-right: 12px;" />
+        <span style="color: #bbb; font-weight: 600; font-size: 18px;">My API Documentation</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+        <span style="color: #999; font-size: 14px;">v1.0.0</span>
+        <a href="/health" style="color: #ff53a8; text-decoration: none;">Health Check</a>
+    </div>
+</div>
+'''
+
+add_syneto_rapidoc(
+    app,
+    docs_url="/docs",
+    header_slot_content=custom_header
+)
+```
+
+**Header Slot Benefits:**
+- **Complete Control**: Full control over header layout and content
+- **Interactive Elements**: Can include buttons, dropdowns, links, etc.
+- **Proper Positioning**: Content appears in the RapiDoc header, not below it
+- **Responsive Design**: Your CSS controls the responsive behavior
+- **JavaScript Support**: Can include interactive JavaScript functionality
+
 **Logo Requirements:**
 - **Format**: SVG recommended for best scaling and quality
 - **Size**: Optimal dimensions are approximately 120x32 pixels

@@ -5,6 +5,8 @@ This example shows how to use the Syneto-branded documentation tools
 with a simple FastAPI application.
 """
 
+from typing import Optional, Union
+
 from fastapi import FastAPI
 
 from syneto_openapi_themes import (
@@ -21,19 +23,19 @@ app = FastAPI(title="Example API", description="A sample API to demonstrate Syne
 
 # Create some sample endpoints
 @app.get("/")
-def read_root():
+def read_root() -> dict[str, str]:
     """Root endpoint."""
     return {"message": "Hello from Syneto Example API"}
 
 
 @app.get("/items/{item_id}")
-def read_item(item_id: int, q: str = None):
+def read_item(item_id: int, q: Optional[str] = None) -> dict[str, Union[int, str, None]]:
     """Get an item by ID."""
     return {"item_id": item_id, "q": q}
 
 
 @app.post("/items/")
-def create_item(item: dict):
+def create_item(item: dict) -> dict[str, Union[dict, str]]:
     """Create a new item."""
     return {"item": item, "status": "created"}
 
