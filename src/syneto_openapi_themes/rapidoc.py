@@ -159,6 +159,14 @@ class SynetoRapiDoc(RapiDoc):
         {self.brand_config.to_css_variables()}
         {self.brand_config.get_loading_css()}
 
+        /* CSS Reset to eliminate white borders */
+        html, body {{
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: {self.brand_config.background_color};
+        }}
+
         /* Syneto-specific RapiDoc customizations using Color Chart v4.0 */
         rapi-doc {{
             --green: #1bdc77;    /* Contrast Color - Green */

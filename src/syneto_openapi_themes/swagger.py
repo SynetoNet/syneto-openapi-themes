@@ -100,6 +100,14 @@ class SynetoSwaggerUI(SwaggerUI):
         {self.brand_config.to_css_variables()}
         {self.brand_config.get_loading_css()}
 
+        /* CSS Reset to eliminate white borders */
+        html, body {{
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: {self.brand_config.background_color};
+        }}
+
         /* Syneto SwaggerUI Theme */
         .swagger-ui .topbar {{
             background-color: {self.brand_config.nav_bg_color};
@@ -139,7 +147,7 @@ class SynetoSwaggerUI(SwaggerUI):
         }}
 
         .swagger-ui .opblock.opblock-put {{
-            border-color: {self.brand_config.primary_color};
+            border-color: {self.brand_config.primary_color} !important;
             background: rgba(173, 15, 108, 0.05);
         }}
 

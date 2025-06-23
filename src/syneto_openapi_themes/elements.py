@@ -94,20 +94,24 @@ class SynetoElements(Elements):
         {self.brand_config.to_css_variables()}
         {self.brand_config.get_loading_css()}
 
+        /* CSS Reset to eliminate white borders */
+        html, body {{
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: {self.brand_config.background_color};
+        }}
+
         /* Syneto Elements Theme */
-        elements-api {{
-            --color-primary: {self.brand_config.primary_color};
-            --color-primary-light: {self.brand_config.nav_accent_color};
-            --color-primary-dark: {self.brand_config.primary_color};
-            --color-secondary: {self.brand_config.nav_bg_color};
-            --color-success: #28a745;
-            --color-warning: #ffc107;
-            --color-danger: #f01932;
-            --color-info: {self.brand_config.primary_color};
-            --color-light: {self.brand_config.background_color};
-            --color-dark: {self.brand_config.text_color};
-            --font-family: {self.brand_config.regular_font};
-            --font-family-mono: {self.brand_config.mono_font};
+        .sl-elements {{
+            --sl-color-canvas-default: {self.brand_config.background_color};
+            --sl-color-canvas-subtle: {self.brand_config.nav_bg_color};
+            --sl-color-fg-default: {self.brand_config.text_color};
+            --sl-color-fg-muted: {self.brand_config.nav_text_color};
+            --sl-color-primary: {self.brand_config.primary_color};
+            --sl-color-accent: {self.brand_config.nav_accent_color};
+            --sl-font-mono: {self.brand_config.mono_font};
+            --sl-font-sans: {self.brand_config.regular_font};
         }}
 
         /* Sidebar styling */

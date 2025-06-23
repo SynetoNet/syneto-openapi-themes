@@ -177,10 +177,10 @@ class TestSynetoElementsCustomizations:
 
         result = elements._inject_syneto_customizations(base_html)
 
-        assert "--color-primary" in result
-        assert "--color-success" in result
-        assert "--color-warning" in result
-        assert "--color-danger" in result
+        assert "--sl-color-primary" in result
+        assert "--sl-color-canvas-default" in result
+        assert "--sl-color-fg-default" in result
+        assert "--sl-color-accent" in result
 
     def test_inject_syneto_customizations_includes_error_handling(self) -> None:
         """Test that customizations include error handling JavaScript."""

@@ -98,20 +98,24 @@ class SynetoScalar(Scalar):
         {self.brand_config.to_css_variables()}
         {self.brand_config.get_loading_css()}
 
+        /* CSS Reset to eliminate white borders */
+        html, body {{
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: {self.brand_config.background_color};
+        }}
+
         /* Syneto Scalar Theme */
-        .scalar-app {{
-            --scalar-color-1: {self.brand_config.primary_color};
-            --scalar-color-2: {self.brand_config.nav_accent_color};
-            --scalar-color-3: {self.brand_config.background_color};
-            --scalar-background-1: {self.brand_config.background_color};
-            --scalar-background-2: {self.brand_config.header_color};
-            --scalar-background-3: {self.brand_config.nav_bg_color};
-            --scalar-text-1: {self.brand_config.text_color};
-            --scalar-text-2: {self.brand_config.nav_text_color};
-            --scalar-text-3: {self.brand_config.nav_hover_text_color};
+        :root {{
+            --scalar-color-1: {self.brand_config.background_color};
+            --scalar-color-2: {self.brand_config.nav_bg_color};
+            --scalar-color-3: {self.brand_config.text_color};
+            --scalar-color-accent: {self.brand_config.primary_color};
             --scalar-border-color: {self.brand_config.nav_bg_color};
-            --scalar-font: {self.brand_config.regular_font};
-            --scalar-font-code: {self.brand_config.mono_font};
+            --scalar-background-1: {self.brand_config.background_color};
+            --scalar-background-2: {self.brand_config.nav_bg_color};
+            --scalar-background-3: {self.brand_config.header_color};
         }}
 
         /* Sidebar styling */
