@@ -457,6 +457,38 @@ class SynetoRapiDoc(RapiDoc):
             background-color: {self.brand_config.header_color} !important;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
         }}
+
+        rapi-doc::part(section-navbar) {{
+            position: sticky !important;
+            top: 48px !important;
+            z-index: 999 !important;
+            background-color: {self.brand_config.nav_bg_color} !important;
+        }}
+
+        rapi-doc::part(section-logo) {{
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1001 !important;
+            background-color: {self.brand_config.header_color} !important;
+        }}
+
+        /* Approach 3: Alternative method using JavaScript-enhanced CSS */
+        .syneto-rapidoc-container.sticky-header-enabled rapi-doc {{
+            --header-position: sticky;
+            --header-top: 0;
+            --header-z-index: 1000;
+        }}
+
+        /* Approach 4: Fallback for show-header=true mode */
+        rapi-doc {{
+            --nav-bg-color: {self.brand_config.nav_bg_color};
+            --header-color: {self.brand_config.header_color};
+        }}
+
+        /* Additional styling to ensure proper appearance */
+        rapi-doc [slot="logo"] img {{
+            filter: invert(1) !important;
+        }}
         """
 
     def get_authentication_config(self) -> dict[str, Any]:
