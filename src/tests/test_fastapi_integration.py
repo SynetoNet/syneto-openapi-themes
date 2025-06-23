@@ -39,6 +39,7 @@ class TestFastAPIIntegrationFunctions:
                 title="Test API - API Documentation",
                 brand_config=None,
                 header_slot_content=None,
+                sticky_header=True,
             )
 
             # Verify route was added (FastAPI may add default docs route too)
@@ -70,6 +71,7 @@ class TestFastAPIIntegrationFunctions:
                 title="Custom Title",
                 brand_config=brand_config,
                 header_slot_content=None,
+                sticky_header=True,
                 custom_param="test",
             )
 
@@ -528,6 +530,7 @@ class TestFastAPIIntegrationEdgeCases:
                 title="None - API Documentation",
                 brand_config=None,
                 header_slot_content=None,
+                sticky_header=True,
             )
 
     def test_manager_with_custom_openapi_url(self) -> None:

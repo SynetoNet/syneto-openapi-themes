@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """
-Example: Using Syneto OpenAPI Themes with custom header slot
+Example: Using Syneto OpenAPI Themes with custom header slot and sticky header
 
 This example demonstrates how to use the custom header slot functionality
 to place logos and content in the RapiDoc header instead of the navigation sidebar.
+It also shows how to enable/disable the sticky header feature that keeps the header
+fixed at the top of the viewport while scrolling.
 """
 
 from typing import Union
@@ -23,8 +25,8 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# Example 1: Default configuration (uses custom header slot with Syneto logo)
-add_syneto_rapidoc(app, docs_url="/docs")
+# Example 1: Default configuration (uses custom header slot with Syneto logo and sticky header)
+add_syneto_rapidoc(app, docs_url="/docs", sticky_header=True)
 
 # Example 2: Custom header content with additional elements
 custom_header_content = (
@@ -54,6 +56,7 @@ add_syneto_rapidoc(
     docs_url="/docs-custom-header",
     title="Custom Header Demo",
     header_slot_content=custom_header_content,
+    sticky_header=True,  # Enable sticky header
     brand_config=SynetoBrandConfig(
         theme=SynetoTheme.DARK,
         company_name="Header Demo Corp",
@@ -75,6 +78,7 @@ add_syneto_rapidoc(
     docs_url="/docs-simple-header",
     title="Simple Header Demo",
     header_slot_content=simple_header,
+    sticky_header=False,  # Disable sticky header for comparison
 )
 
 # Example 4: Header with interactive elements
@@ -113,6 +117,7 @@ add_syneto_rapidoc(
     docs_url="/docs-interactive-header",
     title="Interactive Header Demo",
     header_slot_content=interactive_header,
+    sticky_header=True,  # Enable sticky header with interactive elements
 )
 
 
@@ -146,9 +151,10 @@ if __name__ == "__main__":
 
     print("🚀 Starting Header Slot Demo API...")
     print("📖 Documentation available at:")
-    print("   - Default header: http://localhost:8000/docs")
-    print("   - Custom header: http://localhost:8000/docs-custom-header")
-    print("   - Simple header: http://localhost:8000/docs-simple-header")
-    print("   - Interactive header: http://localhost:8000/docs-interactive-header")
+    print("   - Default header (sticky): http://localhost:8000/docs")
+    print("   - Custom header (sticky): http://localhost:8000/docs-custom-header")
+    print("   - Simple header (non-sticky): http://localhost:8000/docs-simple-header")
+    print("   - Interactive header (sticky): http://localhost:8000/docs-interactive-header")
+    print("\n💡 Scroll down in the documentation to see the sticky header behavior!")
 
     uvicorn.run(app, host="0.0.0.0", port=8000)

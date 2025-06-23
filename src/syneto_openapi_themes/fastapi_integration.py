@@ -23,6 +23,7 @@ def add_syneto_rapidoc(
     title: Optional[str] = None,
     brand_config: Optional[SynetoBrandConfig] = None,
     header_slot_content: Optional[str] = None,
+    sticky_header: bool = True,
     **kwargs: Any,
 ) -> None:
     """
@@ -35,6 +36,7 @@ def add_syneto_rapidoc(
         title: Title for the documentation page
         brand_config: Syneto brand configuration
         header_slot_content: HTML content for the custom header slot (overrides brand logo/header)
+        sticky_header: Whether to make the header sticky (fixed to top while scrolling)
         **kwargs: Additional RapiDoc configuration options
     """
     if title is None:
@@ -45,6 +47,7 @@ def add_syneto_rapidoc(
         title=title,
         brand_config=brand_config,
         header_slot_content=header_slot_content,
+        sticky_header=sticky_header,
         **kwargs,
     )
 

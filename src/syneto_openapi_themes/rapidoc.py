@@ -22,6 +22,7 @@ class SynetoRapiDoc(RapiDoc):
         title: str = "API Documentation",
         brand_config: Optional[SynetoBrandConfig] = None,
         header_slot_content: Optional[str] = None,
+        sticky_header: bool = True,
         **kwargs: Any,
     ) -> None:
         """
@@ -32,6 +33,7 @@ class SynetoRapiDoc(RapiDoc):
             title: Title for the documentation page
             brand_config: Syneto brand configuration
             header_slot_content: HTML content for the custom header slot (overrides brand logo/header)
+            sticky_header: Whether to make the header sticky (fixed to top while scrolling)
             **kwargs: Additional RapiDoc configuration options. These can override any
                      of the default RapiDoc settings. Common overridable parameters include:
                      - render_style: "read" | "view" | "focused" (default: "read")
@@ -44,6 +46,7 @@ class SynetoRapiDoc(RapiDoc):
         """
         self.brand_config = brand_config or get_default_brand_config()
         self.header_slot_content = header_slot_content
+        self.sticky_header = sticky_header
 
         # Separate parent class parameters from RapiDoc configuration
         parent_class_params = {"js_url", "head_js_urls", "tail_js_urls", "head_css_urls", "favicon_url"}
@@ -315,6 +318,8 @@ class SynetoRapiDoc(RapiDoc):
         rapi-doc .descr a:hover {{
             color: #ff9dcd !important;
         }}
+
+        {self._get_sticky_header_css()}
         </style>
         """
 
@@ -401,6 +406,58 @@ class SynetoRapiDoc(RapiDoc):
             html = f"{html}{custom_scripts}"
 
         return html
+
+    def _get_sticky_header_css(self) -> str:
+        """
+        Generate CSS for sticky header if enabled.
+
+        Returns:
+            CSS string for sticky header styling, or empty string if disabled
+        """
+        if not self.sticky_header:
+            return ""
+
+        return f"""
+        /* Sticky Header Implementation - Method 1 */
+        rapi-doc [slot="logo"] {{
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: {self.brand_config.header_color};
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid #161c2d;
+        }}
+
+        /* Ensure the header has proper styling when sticky */
+        rapi-doc [slot="logo"] > div {{
+            background-color: {self.brand_config.header_color};
+            padding: 8px 16px;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+        }}
+
+        /* Alternative approach: Target RapiDoc's internal header structure */
+        rapi-doc::part(section-header) {{
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: {self.brand_config.header_color};
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid #161c2d;
+        }}
+
+        /* Fallback: Target any header-like element in RapiDoc */
+        rapi-doc .header,
+        rapi-doc .nav-bar,
+        rapi-doc .top-bar {{
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1000 !important;
+            background-color: {self.brand_config.header_color} !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+        }}
+        """
 
     def get_authentication_config(self) -> dict[str, Any]:
         """

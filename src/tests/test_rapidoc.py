@@ -503,3 +503,55 @@ class TestSynetoRapiDocIntegration:
         assert 'allow-server-selection="False"' not in html
         assert 'show-header="False"' not in html
         assert 'show-info="False"' not in html
+
+    def test_sticky_header_enabled_by_default(self) -> None:
+        """Test that sticky header is enabled by default and CSS is included."""
+        rapidoc = SynetoRapiDoc()
+        html = rapidoc.render()
+
+        # Verify sticky header CSS is present
+        assert "position: sticky" in html
+        assert "top: 0" in html
+        assert "z-index: 1000" in html
+        assert "Sticky Header Implementation" in html
+
+    def test_sticky_header_disabled(self) -> None:
+        """Test that sticky header can be disabled and CSS is not included."""
+        rapidoc = SynetoRapiDoc(sticky_header=False)
+        html = rapidoc.render()
+
+        # Verify sticky header CSS is NOT present
+        assert "position: sticky" not in html
+        assert "Sticky Header Implementation" not in html
+
+        # But other CSS should still be present
+        assert "Syneto-specific RapiDoc customizations" in html
+        assert rapidoc.brand_config.primary_color in html
+
+    def test_sticky_header_with_custom_header_content(self) -> None:
+        """Test sticky header works with custom header slot content."""
+        custom_header = '<div class="custom-header">My Custom Header</div>'
+        rapidoc = SynetoRapiDoc(header_slot_content=custom_header, sticky_header=True)
+        html = rapidoc.render()
+
+        # Verify both custom header and sticky CSS are present
+        assert "My Custom Header" in html
+        assert "position: sticky" in html
+        assert "Sticky Header Implementation" in html
+
+    def test_get_sticky_header_css_method_directly(self) -> None:
+        """Test the _get_sticky_header_css method directly for both enabled and disabled cases."""
+        # Test with sticky header enabled
+        rapidoc_enabled = SynetoRapiDoc(sticky_header=True)
+        css_enabled = rapidoc_enabled._get_sticky_header_css()
+
+        assert css_enabled != ""
+        assert "position: sticky" in css_enabled
+        assert "Sticky Header Implementation" in css_enabled
+        assert rapidoc_enabled.brand_config.header_color in css_enabled
+
+        # Test with sticky header disabled - this should cover line 418
+        rapidoc_disabled = SynetoRapiDoc(sticky_header=False)
+        css_disabled = rapidoc_disabled._get_sticky_header_css()
+
+        assert css_disabled == ""  # This specifically tests the return "" on line 418
