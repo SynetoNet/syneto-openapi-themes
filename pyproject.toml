@@ -33,7 +33,7 @@ packages = [{include = "syneto_openapi_themes", from = "src"}]
 [tool.poetry.dependencies]
 # Core dependencies - always required
 python = "^3.9.2"
-openapipages = "^0.1.2"
+openapipages = ">=0.1.2,<0.3.0"
 jinja2 = "^3.1.0"
 
 fastapi = {version = ">=0.115.12,<0.117.0"}
