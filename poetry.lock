@@ -1137,14 +1137,14 @@ files = [
 
 [[package]]
 name = "openapipages"
-version = "0.1.2"
+version = "0.2.1"
 description = "OpenAPI Spec-based pages (SwaggerUI, ReDoc, RapiDoc, Elements, Scalar) ready with configuration features."
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "openapipages-0.1.2-py3-none-any.whl", hash = "sha256:7495b69659c06ade718f3efa257a074c05813ec8cfe85b131935f6dcbd018c8b"},
-    {file = "openapipages-0.1.2.tar.gz", hash = "sha256:9adc7ec19997f0b0f27e5123606feaf63f09f8ef9910085174591e68cf699e20"},
+    {file = "openapipages-0.2.1-py3-none-any.whl", hash = "sha256:39a0cbfba0c77e806fd3d2ad4b641e5181704468d14451e68952692e07a67bdb"},
+    {file = "openapipages-0.2.1.tar.gz", hash = "sha256:ae65ab1d9714d008a888069c700e5d0b44610b2b598db3840cada97dd29ad220"},
 ]
 
 [[package]]
@@ -2037,4 +2037,4 @@ fastapi = ["fastapi"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9.2"
-content-hash = "cba65103dae037d04c34ee0c270ef7fd0ab908f00f269aec5d1eb09981c6da14"
+content-hash = "561b759ca9ba4b5efa7b3281f617ba36cfd3a60bec5ac0cb3a2be4260a23d37c"
