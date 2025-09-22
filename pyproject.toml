@@ -67,7 +67,7 @@ bandit = "^1.7.0"
 pre-commit = "^4.2.0"
 
 # Development server (for examples and testing)
-uvicorn = ">=0.20,<0.36"
+uvicorn = ">=0.20,<0.37"
 
 # Documentation and publishing
 markdown = "^3.8"
