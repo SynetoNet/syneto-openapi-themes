@@ -36,7 +36,7 @@ python = "^3.9.2"
 openapipages = ">=0.1.2,<0.3.0"
 jinja2 = "^3.1.0"
 
-fastapi = {version = ">=0.115.12,<0.118.0"}
+fastapi = {version = ">=0.115.12,<0.119.0"}
 pip = "^25.1.1"
 cryptography = "^45.0.4"
 
@@ -54,7 +54,7 @@ pytest-cov = "^4.1.0"
 httpx = "^0.28.1"  # Required for FastAPI TestClient in integration tests
 
 # FastAPI is required for development and testing (even though it's optional for users)
-fastapi = ">=0.115.12,<0.118.0"
+fastapi = ">=0.115.12,<0.119.0"
 
 # Code formatting and linting
 black = "^24.3.0"
@@ -80,7 +80,7 @@ pytest-asyncio = "^0.23.8"
 pytest-cov = "^4.1.0"
 httpx = "^0.28.1"
 # Include FastAPI for integration tests
-fastapi = ">=0.115.12,<0.118.0"
+fastapi = ">=0.115.12,<0.119.0"
 
 [tool.black]
 line-length = 120
